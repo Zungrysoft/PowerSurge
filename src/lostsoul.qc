@@ -158,24 +158,52 @@ void() Soul_Accelerate = {
 	self.old_velocity = self.velocity;
 }
 
-void() Soul_Hop = {
-	self.velocity = '0 0 0';
-	self.velocity_z = 200;
+void(vector vel) Soul_Hop = {
+	self.velocity = vel;
 	self.old_velocity = self.velocity;
+	
+	self.nextthink += 0.3;
 }
 
 void() Soul_Charge = {
+	local vector hop;
+
 	sound (self, CHAN_VOICE, "lostsoul/charge.wav", 1, ATTN_NORM);
 	soul_mode(MODE_FLY);
 	self.touch = Soul_Charge_Touch;
 	
 	self.speed = 0;
 	
-	// Lost Soul hops upwards before charging
-	// Used to clear lower lips
-	if (self.origin_z - self.enemy.origin_z > 20) {
-		self.nextthink += 0.4;
-		Soul_Hop();
+	// Lost Soul does a vertical hop before charging
+	// Used to clear lips
+	if (pointcontents(self.origin + '0 0 60') == CONTENT_SOLID) {
+		hop = '0 0 -110';
+	}
+	if (pointcontents(self.origin + '0 0 -30') == CONTENT_SOLID) {
+		if (!hop) {
+			hop = '0 0 200';
+		}
+		else {
+			hop = '0 0 0';
+		}
+	}
+	if (!hop) {
+		if (pointcontents(self.origin + '40 0 0') == CONTENT_SOLID) {
+			hop -= '110 0 0';
+		}
+		if (pointcontents(self.origin + '-40 0 0') == CONTENT_SOLID) {
+			hop -= '-110 0 0';
+		}
+		if (pointcontents(self.origin + '0 40 0') == CONTENT_SOLID) {
+			hop -= '0 110 0';
+		}
+		if (pointcontents(self.origin + '0 -40 0') == CONTENT_SOLID) {
+			hop -= '0 -110 0';
+		}
+	}
+	
+	if (hop) {
+		Soul_Hop(hop);
 	}
 	else {
 		Soul_Accelerate();
