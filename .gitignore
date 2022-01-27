@@ -1,0 +1,10 @@
+# Config files
+*.cfg
+
+# Compile stuff
+progs.lno
+PowerSurge.zip
+pwr
+
+# Misc
+condump.txt
