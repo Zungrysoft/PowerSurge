@@ -277,11 +277,16 @@ void() Fireball_Touch = {
 	s_explode1 ();
 };
 
+void() painelem_Wind =
+{
+	sound (self, CHAN_WEAPON, "painelem/wind.wav", 1, ATTN_NORM);
+}
+
 void() painelem_Shoot =
 {
 	entity missile;
 	
-	//sound (self, CHAN_WEAPON, "painelem/fire.wav", 1, ATTN_NORM);
+	sound (self, CHAN_WEAPON, "painelem/shoot.wav", 1, ATTN_NORM);
 	
 	missile = spawn();
 	missile.owner = self;
@@ -374,7 +379,7 @@ void(vector offset, float angle) painelem_Release = {
 	update_monsters();
 }
 
-void() painelem_attacka1 = [ $attacka1, painelem_attacka2 ] {ai_face();eye_position('0 16.741 37.384');};
+void() painelem_attacka1 = [ $attacka1, painelem_attacka2 ] {ai_face();eye_position('0 16.741 37.384');painelem_Wind();};
 void() painelem_attacka2 = [ $attacka2, painelem_attacka3 ] {ai_face();eye_position('0 16.276 37.687');};
 void() painelem_attacka3 = [ $attacka3, painelem_attacka4 ] {ai_face();eye_position('0 15.412 38.839');};
 void() painelem_attacka4 = [ $attacka4, painelem_attacka5 ] {ai_face();eye_position('0 14.947 39.459');painelem_Shoot();};
@@ -528,6 +533,8 @@ void() monster_pain_elemental = {
 	precache_sound ("shambler/smack.wav");
 	precache_sound ("painelem/swipe.wav");
 	precache_sound ("painelem/explode.wav");
+	precache_sound ("painelem/shoot.wav");
+	precache_sound ("painelem/wind.wav");
 	
 	//Lost Soul precaches
 	precache_model ("progs/lostsoul.mdl");

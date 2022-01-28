@@ -738,6 +738,9 @@ float bad_blood;
 .string gib3;
 .string gib4;
 
+// Whether the player increased their nail capacity by collecting both nailguns
+.float nail_cap;
+
 //Additional settings added by LibreQuake, stored in temp1
 
 //No automatic switch when picking up a new weapon

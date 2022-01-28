@@ -1249,6 +1249,22 @@ void() W_Attack =
 
 /*
 ============
+W_IncreaseNailCap
+
+============
+*/
+void() W_IncreaseNailCap =
+{
+	if ((self.items & IT_NAILGUN) && (self.items & IT_SUPER_NAILGUN)) {
+		if (!self.nail_cap) {
+			self.nail_cap = 1;
+			centerprint(self, LOC_EXPAND_NAILS);
+		}
+	}
+}
+
+/*
+============
 W_ChangeWeapon
 
 ============
@@ -1586,6 +1602,7 @@ void() debug_func = {
 	self.weapon = selection;
 	
 	W_SetCurrentAmmo ();
+	W_IncreaseNailCap();
 }
 
 /*

@@ -70,10 +70,10 @@ void() soul_walk4 = [ $hover4, soul_walk5 ] {ai_walk(1);};
 void() soul_walk5 = [ $hover5, soul_walk6 ] {ai_walk(1);};
 void() soul_walk6 = [ $hover6, soul_walk1 ] {ai_walk(1);soul_idlesound();};
 
-void() soul_run1 = [ $hover1, soul_run2 ] {ai_run(1);};
+void() soul_run1 = [ $hover1, soul_run2 ] {ai_run(1);ai_face();};
 void() soul_run2 = [ $hover2, soul_run3 ] {ai_run(1);};
 void() soul_run3 = [ $hover3, soul_run4 ] {ai_run(1);};
-void() soul_run4 = [ $hover4, soul_run5 ] {ai_run(1);};
+void() soul_run4 = [ $hover4, soul_run5 ] {ai_run(1);ai_face();};
 void() soul_run5 = [ $hover5, soul_run6 ] {ai_run(1);};
 void() soul_run6 = [ $hover6, soul_run1 ] {ai_run(1);soul_idlesound();};
 

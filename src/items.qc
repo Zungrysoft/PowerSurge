@@ -1,4 +1,5 @@
 void() W_SetCurrentAmmo;
+void() W_IncreaseNailCap;
 /* ALL LIGHTS SHOULD BE 0 1 0 IN COLOR ALL OTHER ITEMS SHOULD
 BE .8 .3 .4 IN COLOR */
 
@@ -638,13 +639,22 @@ WEAPONS
 
 void() bound_other_ammo =
 {
+	local float max_nails;
+	
 	if (supermode() || supermode2() || explomode())
 		return;
 	
+	if (other.nail_cap) {
+		max_nails = 300;
+	}
+	else {
+		max_nails = 200;
+	}
+	
 	if (other.ammo_shells > 100)
 		other.ammo_shells = 100;
-	if (other.ammo_nails > 200)
-		other.ammo_nails = 200;
+	if (other.ammo_nails > max_nails)
+		other.ammo_nails = max_nails;
 	if (other.ammo_rockets > 100)
 		other.ammo_rockets = 100;		
 	if (other.ammo_cells > 100)
@@ -816,6 +826,8 @@ void() weapon_touch =
 	}
 	
 	W_SetCurrentAmmo();
+	
+	W_IncreaseNailCap();
 	
 	self = stemp;
 
@@ -991,13 +1003,24 @@ AMMO
 
 void() ammo_touch =
 {
-local entity	stemp;
-local float		best;
+	local entity	stemp;
+	local float		best;
+	local float		max_nails;
 
 	if (other.classname != "player")
 		return;
 	if (other.health <= 0)
 		return;
+		
+	if (other.nail_cap) {
+		max_nails = 300;
+		if (self.weapon == 2) {
+			self.aflag = floor(self.aflag * 1.5);
+		}
+	}
+	else {
+		max_nails = 200;
+	}
 
 // if the player was using his best weapon, change up to the new one if better		
 	stemp = self;
@@ -1017,7 +1040,7 @@ local float		best;
 // spikes
 	if (self.weapon == 2)
 	{
-		if (other.ammo_nails >= 200)
+		if (other.ammo_nails >= max_nails)
 			return;
 		other.ammo_nails = other.ammo_nails + self.aflag;
 	}

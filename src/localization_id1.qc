@@ -90,6 +90,7 @@
 #define LOC_RUNE_2				" got the rune of Dark Magic!"
 #define LOC_RUNE_3				" got the rune of Hell Magic!"
 #define LOC_RUNE_4				" got the rune of Elder Magic!"
+#define LOC_EXPAND_NAILS		"Your Nail capacity has increased!"
 
 //Domination mode messages
 #define LOC_DOM_TAKE			" captured rune "
