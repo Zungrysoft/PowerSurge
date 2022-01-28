@@ -312,6 +312,9 @@ void() painelem_Deploy = {
 	entity missile;
 	entity oself;
 	
+	// Count down number of deploys left
+	self.count -= 1;
+	
 	//Spawns the monster
 	missile = spawn();
 
@@ -407,7 +410,7 @@ void() painelem_attackb11 = [ $attackb11, painelem_run1 ] {ai_face();eye_positio
 // Always shoots a fireball when attacking another monster.
 // Called on th_missile.
 void() painelem_missile = {
-	if ((random() < 0.35) || (self.enemy.flags & FL_MONSTER)) {
+	if ((random() < 0.35) || (self.enemy.flags & FL_MONSTER) || self.count <= 0) {
 		self.lefty = 0;
 		painelem_attacka1();
 	} else {
@@ -552,6 +555,7 @@ void() monster_pain_elemental = {
 	
 	setsize (self, VEC_HULL2_MIN, VEC_HULL2_MAX);
 	self.health = 500;
+	self.count = 5;
 	
 	self.th_stand = painelem_stand1;
 	self.th_walk = painelem_walk1;
