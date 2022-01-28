@@ -128,18 +128,18 @@ void() painelem_stand12 = [ $hover12, painelem_stand1 ] {ai_stand();eye_position
 	painelem_idlesound();
 };
 
-void() painelem_walk1 = [ $hover1, painelem_walk2 ] {ai_walk(6);};
-void() painelem_walk2 = [ $hover2, painelem_walk3 ] {ai_walk(6);};
-void() painelem_walk3 = [ $hover3, painelem_walk4 ] {ai_walk(6);};
-void() painelem_walk4 = [ $hover4, painelem_walk5 ] {ai_walk(6);};
-void() painelem_walk5 = [ $hover5, painelem_walk6 ] {ai_walk(6);};
-void() painelem_walk6 = [ $hover6, painelem_walk7 ] {ai_walk(6);};
-void() painelem_walk7 = [ $hover7, painelem_walk8 ] {ai_walk(6);};
-void() painelem_walk8 = [ $hover8, painelem_walk9 ] {ai_walk(6);};
-void() painelem_walk9 = [ $hover9, painelem_walk10 ] {ai_walk(6);};
-void() painelem_walk10 = [ $hover10, painelem_walk11 ] {ai_walk(6);};
-void() painelem_walk11 = [ $hover11, painelem_walk12 ] {ai_walk(6);};
-void() painelem_walk12 = [ $hover12, painelem_walk1 ] {ai_walk(6);
+void() painelem_walk1 = [ $hover1, painelem_walk2 ] {ai_walk(6);eye_position('0 16.741 37.384');};
+void() painelem_walk2 = [ $hover2, painelem_walk3 ] {ai_walk(6);eye_position('0 16.741 37.122');};
+void() painelem_walk3 = [ $hover3, painelem_walk4 ] {ai_walk(6);eye_position('0 16.741 36.467');};
+void() painelem_walk4 = [ $hover4, painelem_walk5 ] {ai_walk(6);eye_position('0 16.741 35.616');};
+void() painelem_walk5 = [ $hover5, painelem_walk6 ] {ai_walk(6);eye_position('0 16.741 34.765');};
+void() painelem_walk6 = [ $hover6, painelem_walk7 ] {ai_walk(6);eye_position('0 16.741 34.110');};
+void() painelem_walk7 = [ $hover7, painelem_walk8 ] {ai_walk(6);eye_position('0 16.741 33.848');};
+void() painelem_walk8 = [ $hover8, painelem_walk9 ] {ai_walk(6);eye_position('0 16.741 34.183');};
+void() painelem_walk9 = [ $hover9, painelem_walk10 ] {ai_walk(6);eye_position('0 16.741 34.981');};
+void() painelem_walk10 = [ $hover10, painelem_walk11 ] {ai_walk(6);eye_position('0 16.741 35.934');};
+void() painelem_walk11 = [ $hover11, painelem_walk12 ] {ai_walk(6);eye_position('0 16.741 36.732');};
+void() painelem_walk12 = [ $hover12, painelem_walk1 ] {ai_walk(6);eye_position('0 16.741 37.067');
 	painelem_idlesound();
 };
 

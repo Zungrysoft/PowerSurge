@@ -150,18 +150,33 @@ void() soul_die = {
 #define SOUL_MAX_SPEED 600
 #define SOUL_ACCEL 250
 void() Soul_Accelerate = {
-	self.speed += SOUL_ACCEL;
-	if (self.speed >= SOUL_MAX_SPEED) {
-		self.speed = SOUL_MAX_SPEED;
+	local float speed;
+	
+	speed = vlen(self.velocity);
+	
+	// Accelerate until at max speed
+	if (speed >= SOUL_MAX_SPEED) {
+		self.velocity = SOUL_MAX_SPEED * normalize(self.velocity);
 	}
-	self.velocity = self.speed * normalize((self.enemy.origin + '0 0 16') - self.origin);
+	else {
+		self.velocity += SOUL_ACCEL * normalize(self.velocity);
+	}
+	
 	self.old_velocity = self.velocity;
+}
+
+void() Soul_Charge_Start = {
+	// Set velocity it is charging player
+	self.velocity = SOUL_ACCEL * normalize((self.enemy.origin + '0 0 16') - self.origin);
+	
+	soul_charge1();
 }
 
 void(vector vel) Soul_Hop = {
 	self.velocity = vel;
 	self.old_velocity = self.velocity;
 	
+	self.think = Soul_Charge_Start;
 	self.nextthink += 0.3;
 }
 
@@ -206,7 +221,7 @@ void() Soul_Charge = {
 		Soul_Hop(hop);
 	}
 	else {
-		Soul_Accelerate();
+		Soul_Charge_Start();
 	}
 }
 

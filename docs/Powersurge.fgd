@@ -335,6 +335,10 @@
 [
 	target(string) : "First stop target"
 	targetname(target_source) : "Name"
+	spawnflags(Flags) =
+	[
+		1 : "Invisible" : 0
+	]
 ]
 @PointClass base(Appearflags, Targetname) color(220 150 150) = trap_spikeshooter : "Triggered shooter"
 [

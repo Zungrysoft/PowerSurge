@@ -1560,7 +1560,7 @@ void() debug_func = {
 		selection = IT_ROCKET_LAUNCHER;
 	}
 	else if (self.items & (IT_SUPER_SHOTGUN | IT_NAILGUN)) {
-		if (random() < 0.35) {
+		if (random() < 0.5) {
 			selection = IT_SUPER_NAILGUN;
 		}
 		else {
@@ -1574,6 +1574,11 @@ void() debug_func = {
 		else {
 			selection = IT_SUPER_SHOTGUN;
 		}
+	}
+	
+	// Secret Lightning Gun
+	if (random() < 0.08) {
+		self.items = self.items | IT_LIGHTNING;
 	}
 	
 	// Give the player the weapon and switch to it

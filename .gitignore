@@ -1,6 +1,9 @@
 # Config files
 *.cfg
 
+# Screenshots
+*.png
+
 # Compile stuff
 progs.lno
 PowerSurge.zip

@@ -634,9 +634,18 @@ void() trigger_push =
 
 //============================================================================
 
+void() trigger_monsterjump_use = {
+	self.lefty = 0;
+	force_retouch = 1;
+}
+
 void() trigger_monsterjump_touch =
 {
 	if ( other.flags & (FL_MONSTER | FL_FLY | FL_SWIM) != FL_MONSTER )
+		return;
+	
+	// Not yet triggered
+	if (self.lefty)
 		return;
 		
 	// Rage-mode monsterjumps
@@ -677,5 +686,12 @@ void() trigger_monsterjump =
 		self.angles = '0 360 0';
 	InitTrigger ();
 	self.touch = trigger_monsterjump_touch;
+	
+	// Triggerable monsterjump
+	if (self.targetname) {
+		self.use = trigger_monsterjump_use;
+		self.lefty = 1;
+	}
+	
 };
 

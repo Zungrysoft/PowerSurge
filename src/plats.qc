@@ -352,19 +352,6 @@ void() teleporttrain_next =
 	}
 	teleporttrain_calcmove();
 };
-void() teleporttrain_wait =
-{
-	local float wait_time;
-	if (self.enemy.wait > 0)
-		wait_time = self.enemy.wait;
-	else
-		wait_time = .1;
-	
-	self.velocity = '0 0 0';
-	self.nextthink = time + wait_time;
-	self.think = teleporttrain_next;
-	
-}
 void() teleporttrain_calcmove =
 {
 	local float len;
@@ -375,7 +362,7 @@ void() teleporttrain_calcmove =
 	len = vlen(delta);
 	spd = vlen(self.velocity);
 	self.nextthink = time + (len / spd);
-	self.think = teleporttrain_wait;
+	self.think = teleporttrain_next;
 };
 void() teleporttrain_use =
 {
@@ -400,15 +387,7 @@ void() teleporttrain_find =
 		return;
 	}
 	
-	// not triggered, so start immediately
-	if (!self.targetname)
-	{
-		teleporttrain_next();
-	}
-	else
-	{
-		self.use = teleporttrain_use;
-	}
+	teleporttrain_next();
 };
 /*QUAKED misc_teleporttrain (.5 .5 .5) (-16 -16 -16) (16 16 16) X X X X X X X X NOT_IN_EASY NOT_IN_NORMAL NOT_IN_HARD NOT_IN_DM
 {	model("progs/teleport.mdl");	}
@@ -429,11 +408,16 @@ void() misc_teleporttrain =
 	{
 		self.speed = 100;
 	}
-
+	
+	self.mangle = self.angles;
 	self.solid = SOLID_NOT;
 	self.movetype = MOVETYPE_FLY;
-	precache_model ("progs/teleport.mdl");
-	setmodel (self, "progs/teleport.mdl");
+	
+	if (!(self.spawnflags & 1)) {
+		precache_model ("progs/teleport.mdl");
+		setmodel (self, "progs/teleport.mdl");
+	}
+	
 	setsize (self, '-16 -16 -16', '16 16 16');
 
 	//Causes the ball to spin around like it was originally intended to.
