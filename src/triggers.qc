@@ -642,7 +642,14 @@ void() trigger_monsterjump_touch =
 	// Rage-mode monsterjumps
 	if ( (self.spawnflags & 1) && (other.health > 300) )
 		return;
-
+	
+	// One-time only monsterjumps
+	if ((self.spawnflags & 2) && self.count > 0)
+		return;
+	
+	self.count += 1;
+	
+	
 // set XY even if not on ground, so the jump will clear lips
 	other.velocity_x = self.movedir_x * self.speed;
 	other.velocity_y = self.movedir_y * self.speed;

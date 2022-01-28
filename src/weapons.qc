@@ -1541,9 +1541,46 @@ void() QuadCheat =
 	bprint (PRINT_HIGH, "Quad Cheat\n");
 };
 
-void() debug_func =
-{
-	bprint2("debug\n");
+// Used for map testing
+// Randomly gives the player weapons from previous levels
+void() debug_func = {
+	local float selection = 0;
+	
+	// Spoil cheat
+	bprint (PRINT_HIGH, "Random Weapon Cheat\n");
+	
+	// Grant some extra ammo
+	self.ammo_nails += 20;
+	self.ammo_rockets += 5;
+	self.ammo_shells += 15;
+	self.ammo_cells += 5;
+	
+	// Determine which weapon to give
+	if (self.items & (IT_SUPER_NAILGUN | IT_GRENADE_LAUNCHER)) {
+		selection = IT_ROCKET_LAUNCHER;
+	}
+	else if (self.items & (IT_SUPER_SHOTGUN | IT_NAILGUN)) {
+		if (random() < 0.35) {
+			selection = IT_SUPER_NAILGUN;
+		}
+		else {
+			selection = IT_GRENADE_LAUNCHER;
+		}
+	}
+	else {
+		if (random() < 0.5) {
+			selection = IT_NAILGUN;
+		}
+		else {
+			selection = IT_SUPER_SHOTGUN;
+		}
+	}
+	
+	// Give the player the weapon and switch to it
+	self.items = self.items | selection;
+	self.weapon = selection;
+	
+	W_SetCurrentAmmo ();
 }
 
 /*

@@ -596,7 +596,10 @@
 [
 	speed(integer) : "Jump Speed" : 200
 	height(integer) : "Jump Height" : 200
-	spawnflags(flags) = [ 1: "Rage-Mode" : 0 ]
+	spawnflags(flags) = [
+		1: "Rage-Mode" : 0
+		2: "One Monster Only" : 0
+	]
 ]
 @PointClass base(Appearflags, Target, Targetname) = trigger_counter : "Trigger: Counter"
 [

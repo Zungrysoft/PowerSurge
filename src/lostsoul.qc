@@ -147,8 +147,8 @@ void() soul_die = {
 
 
 //===========================================================================
-#define SOUL_MAX_SPEED 500
-#define SOUL_ACCEL 200
+#define SOUL_MAX_SPEED 600
+#define SOUL_ACCEL 250
 void() Soul_Accelerate = {
 	self.speed += SOUL_ACCEL;
 	if (self.speed >= SOUL_MAX_SPEED) {
