@@ -1,5 +1,3 @@
-/*
-*/
 void (entity targ, entity inflictor, entity attacker, float damage) T_Damage;
 void () player_run;
 void(entity bomb, entity attacker, float rad, entity ignore, string dtype) T_RadiusDamage;
@@ -898,7 +896,7 @@ void() W_FireSuperSpikes =
 	launch_spike (self.origin + '0 0 16', dir);
 	newmis.touch = superspike_touch;
 	setmodel (newmis, "progs/s_spike.mdl");
-	setsize (newmis, VEC_ORIGIN, VEC_ORIGIN);		
+	setsize (newmis, VEC_ORIGIN, VEC_ORIGIN);
 	W_SmallKick();
 	
 #ifdef qw
@@ -1002,7 +1000,7 @@ void() superspike_touch =
 	}
 	self.voided = 1;
 #endif
-
+	
 	if (other.solid == SOLID_TRIGGER)
 		return;	// trigger field, do nothing
 
@@ -1037,8 +1035,9 @@ void() superspike_touch =
 		WriteCoord (MSG_BROADCAST, self.origin_z);
 		multicast (self.origin, MULTICAST_PHS);
 	}
-
+	
 	remove(self);
+	
 };
 
 
@@ -1249,16 +1248,34 @@ void() W_Attack =
 
 /*
 ============
-W_IncreaseNailCap
+W_IncreaseAmmoCap
 
 ============
 */
-void() W_IncreaseNailCap =
+void() W_IncreaseAmmoCap =
 {
+	if (deathmatch) {
+		return;
+	}
+	
+	if ((self.items & IT_SHOTGUN) && (self.items & IT_SUPER_SHOTGUN)) {
+		if (!self.increased_shell_cap) {
+			self.increased_shell_cap = 1;
+			centerprint(self, LOC_EXPAND_SHELLS);
+		}
+	}
+	
 	if ((self.items & IT_NAILGUN) && (self.items & IT_SUPER_NAILGUN)) {
-		if (!self.nail_cap) {
-			self.nail_cap = 1;
+		if (!self.increased_nail_cap) {
+			self.increased_nail_cap = 1;
 			centerprint(self, LOC_EXPAND_NAILS);
+		}
+	}
+	
+	if ((self.items & IT_GRENADE_LAUNCHER) && (self.items & IT_ROCKET_LAUNCHER)) {
+		if (!self.increased_rocket_cap) {
+			self.increased_rocket_cap = 1;
+			centerprint(self, LOC_EXPAND_ROCKETS);
 		}
 	}
 }
@@ -1602,7 +1619,7 @@ void() debug_func = {
 	self.weapon = selection;
 	
 	W_SetCurrentAmmo ();
-	W_IncreaseNailCap();
+	W_IncreaseAmmoCap();
 }
 
 /*

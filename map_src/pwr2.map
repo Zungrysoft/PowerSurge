@@ -16901,3 +16901,9 @@
 "spawnflags" "1281"
 "targetname" "surprise_knight"
 }
+// entity 706
+{
+"classname" "item_shells"
+"origin" "-640 -144 -64"
+"spawnflags" "2816"
+}

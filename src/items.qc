@@ -1,5 +1,5 @@
 void() W_SetCurrentAmmo;
-void() W_IncreaseNailCap;
+void() W_IncreaseAmmoCap;
 /* ALL LIGHTS SHOULD BE 0 1 0 IN COLOR ALL OTHER ITEMS SHOULD
 BE .8 .3 .4 IN COLOR */
 
@@ -639,16 +639,35 @@ WEAPONS
 
 void() bound_other_ammo =
 {
+	local float max_shells;
 	local float max_nails;
+	local float max_rockets;
 	
 	if (supermode() || supermode2() || explomode())
 		return;
 	
-	if (other.nail_cap) {
-		max_nails = 300;
+	// Shell cap
+	if (other.increased_shell_cap) {
+		max_shells = SHELL_CAP * CAP_MULTIPLIER;
 	}
 	else {
-		max_nails = 200;
+		max_shells = SHELL_CAP;
+	}
+	
+	// Nail cap
+	if (other.increased_nail_cap) {
+		max_nails = NAIL_CAP * CAP_MULTIPLIER;
+	}
+	else {
+		max_nails = NAIL_CAP;
+	}
+	
+	// Rocket cap
+	if (other.increased_rocket_cap) {
+		max_rockets = ROCKET_CAP * CAP_MULTIPLIER;
+	}
+	else {
+		max_rockets = ROCKET_CAP;
 	}
 	
 	if (other.ammo_shells > 100)
@@ -827,7 +846,7 @@ void() weapon_touch =
 	
 	W_SetCurrentAmmo();
 	
-	W_IncreaseNailCap();
+	W_IncreaseAmmoCap();
 	
 	self = stemp;
 
@@ -1005,21 +1024,46 @@ void() ammo_touch =
 {
 	local entity	stemp;
 	local float		best;
+	local float		max_shells;
 	local float		max_nails;
+	local float		max_rockets;
 
 	if (other.classname != "player")
 		return;
 	if (other.health <= 0)
 		return;
-		
-	if (other.nail_cap) {
-		max_nails = 300;
-		if (self.weapon == 2) {
-			self.aflag = floor(self.aflag * 1.5);
+	
+	// Shell cap
+	if (other.increased_shell_cap) {
+		max_shells = SHELL_CAP * CAP_MULTIPLIER;
+		if (self.weapon == 1) {
+			self.aflag = floor(self.aflag * CAP_MULTIPLIER);
 		}
 	}
 	else {
-		max_nails = 200;
+		max_shells = SHELL_CAP;
+	}
+	
+	// Nail cap
+	if (other.increased_nail_cap) {
+		max_nails = NAIL_CAP * CAP_MULTIPLIER;
+		if (self.weapon == 2) {
+			self.aflag = floor(self.aflag * CAP_MULTIPLIER);
+		}
+	}
+	else {
+		max_nails = NAIL_CAP;
+	}
+	
+	// Rocket cap
+	if (other.increased_rocket_cap) {
+		max_rockets = ROCKET_CAP * CAP_MULTIPLIER;
+		if (self.weapon == 3) {
+			self.aflag = floor(self.aflag * CAP_MULTIPLIER);
+		}
+	}
+	else {
+		max_rockets = ROCKET_CAP;
 	}
 
 // if the player was using his best weapon, change up to the new one if better		
@@ -1032,7 +1076,7 @@ void() ammo_touch =
 // shotgun
 	if (self.weapon == 1)
 	{
-		if (other.ammo_shells >= 100)
+		if (other.ammo_shells >= max_shells)
 			return;
 		other.ammo_shells = other.ammo_shells + self.aflag;
 	}
@@ -1048,7 +1092,7 @@ void() ammo_touch =
 //	rockets
 	if (self.weapon == 3)
 	{
-		if (other.ammo_rockets >= 100)
+		if (other.ammo_rockets >= max_rockets)
 			return;
 		other.ammo_rockets = other.ammo_rockets + self.aflag;
 	}

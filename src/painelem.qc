@@ -329,7 +329,7 @@ void() painelem_Deploy = {
 	setorigin (missile, self.origin + '0 0 24');
 	setsize (missile, VEC_HULL_MIN, VEC_HULL_MAX);
 	missile.angles = self.angles;
-	missile.health = 60;
+	missile.health = 40;
 	missile.classname = "monster_lostsoul";
 	missile.lefty = 1;
 
@@ -377,6 +377,7 @@ void(vector offset, float angle) painelem_Release = {
 	self = missile;
 	monster_lostsoul_spawn();
 	flymonster_start_go();
+	self.health = 40;
 	self = oself;
 	
 	update_monsters();

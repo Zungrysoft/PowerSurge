@@ -739,7 +739,13 @@ float bad_blood;
 .string gib4;
 
 // Whether the player increased their nail capacity by collecting both nailguns
-.float nail_cap;
+.float increased_shell_cap;
+.float increased_nail_cap;
+.float increased_rocket_cap;
+#define SHELL_CAP 100
+#define NAIL_CAP 200
+#define ROCKET_CAP 20
+#define CAP_MULTIPLIER 1.5
 
 //Additional settings added by LibreQuake, stored in temp1
 

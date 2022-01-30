@@ -105,7 +105,9 @@ void() SetChangeParms =
 	parm7 = self.ammo_cells;
 	parm8 = self.weapon;
 	parm9 = self.armortype * 100;
-	parm10 = self.nail_cap;
+	parm10 = self.increased_shell_cap;
+	parm11 = self.increased_nail_cap;
+	parm12 = self.increased_rocket_cap;
 	parm15 = 1;
 	
 	//Fix for the engine-side disappearing runes bug
@@ -125,6 +127,8 @@ void() SetNewParms =
 	parm8 = 1;
 	parm9 = 0;
 	parm10 = 0;
+	parm11 = 0;
+	parm12 = 0;
 };
 
 void() DecodeLevelParms =
@@ -146,7 +150,9 @@ void() DecodeLevelParms =
 	self.ammo_cells = parm7;
 	self.weapon = parm8;
 	self.armortype = parm9 * 0.01;
-	self.nail_cap = parm10;
+	self.increased_shell_cap = parm10;
+	self.increased_nail_cap = parm11;
+	self.increased_rocket_cap = parm12;
 	
 	//Bind health to be between 50 and 100 (or 25 and 50 if playing on copper nightmare)
 	//This is now done in the decode as well, to ensure the settings take effect on restart in copper nightmare
