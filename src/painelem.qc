@@ -465,17 +465,19 @@ void(float c) painelem_explode = {
 }
 
 void()	painelem_death1	= [ $paina1, painelem_death2 ] {
+	eye_position('1.8364 15.723 40.78');
 	makevectors(self.angles);
 	self.velocity = v_forward * -40;
 	sound (self, CHAN_VOICE, "painelem/death.wav", 1, ATTN_NORM);
 };
-void()	painelem_death2	= [ $paina2, painelem_death3 ] {painelem_explode(2);};
-void()	painelem_death3	= [ $paina3, painelem_death4 ] {painelem_explode(2);};
-void()	painelem_death4	= [ $paina3, painelem_death5 ] {painelem_explode(2);};
-void()	painelem_death5	= [ $paina3, painelem_death6 ] {painelem_explode(3);};
-void()	painelem_death6	= [ $paina3, painelem_death7 ] {painelem_explode(3);};
-void()	painelem_death7	= [ $paina3, painelem_death8 ] {painelem_explode(4);};
+void()	painelem_death2	= [ $paina2, painelem_death3 ] {painelem_explode(2);eye_position('1.8364 15.723 40.78');};
+void()	painelem_death3	= [ $paina3, painelem_death4 ] {painelem_explode(2);eye_position('1.8364 15.723 40.78');};
+void()	painelem_death4	= [ $paina3, painelem_death5 ] {painelem_explode(2);eye_position('1.8364 15.723 40.78');};
+void()	painelem_death5	= [ $paina3, painelem_death6 ] {painelem_explode(3);eye_position('1.8364 15.723 40.78');};
+void()	painelem_death6	= [ $paina3, painelem_death7 ] {painelem_explode(3);eye_position('1.8364 15.723 40.78');};
+void()	painelem_death7	= [ $paina3, painelem_death8 ] {painelem_explode(4);eye_position('1.8364 15.723 40.78');};
 void()	painelem_death8	= [ $paina3, painelem_death8 ] {
+	eye_position('1.8364 15.723 40.78');
 	painelem_explode(10);
 	remove(self.eye_entity);
 	ThrowHead ("progs/paineye.mdl", -50);

@@ -620,9 +620,8 @@
 @SolidClass  base(Appearflags, Targetname) = trigger_hurt : "Trigger: Hurt"
 [
 	dmg(integer) : "Damage per second" : 5
+	spawnflags(flags) = [ 1: "Monsters only" : 0 ]
 ]
-@PointClass size(16 16 16) = misc_noisemaker : "Debug entity: continuously plays enforcer sounds" []
-@PointClass size(16 16 16) = viewthing : "Debug entity: fake player model" []
 
 @baseclass size(16 16 16) color(255 127 127) = Flag []
 

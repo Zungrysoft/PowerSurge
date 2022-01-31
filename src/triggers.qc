@@ -565,6 +565,11 @@ void() hurt_on =
 
 void() hurt_touch =
 {
+	// Monster-only
+	if ((self.spawnflags & 1) && !(other.flags & FL_MONSTER)) {
+		return;
+	}
+	
 	if (other.takedamage && self.nextthink < time)
 	{
 		//ZungryWare: This fix makes it so nextthink is used to track cooldowns instead of setting its solidity
