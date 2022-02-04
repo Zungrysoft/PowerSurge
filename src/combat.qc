@@ -151,10 +151,11 @@ void(entity targ, entity inflictor, entity attacker, float damage) T_Damage =
 		targ.dmg_save = targ.dmg_save + save;
 		targ.dmg_inflictor = inflictor;
 	}
-
+	
 // figure momentum add
 	if ( (inflictor != world) && (targ.movetype == MOVETYPE_WALK) )
 	{
+		
 		dir = targ.origin - (inflictor.absmin + inflictor.absmax) * 0.5;
 		dir = normalize(dir);
 		if (arenamode())

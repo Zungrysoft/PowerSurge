@@ -5,7 +5,8 @@ Devil
 */
 
 // Balancing Parameters
-#define DEVIL_MELEE_DAMAGE 90
+#define DEVIL_MELEE_DAMAGE 67
+#define DEVIL_RAM_FORCE 550
 #define DEVIL_GRENADE_DAMAGE 45
 #define DEVIL_FOLLOW_RANGE_MAX 512
 #define DEVIL_FOLLOW_RANGE_MIN 256
@@ -14,6 +15,7 @@ Devil
 #define DEVIL_CHECK_DISTANCES 3
 
 #define target_marker trigger_field
+#define super_armor count
 
 $frame stand1 stand2 stand3 stand4 stand5 stand6 stand7 stand8 stand9
 $frame stand10 stand11 stand12 stand13 standlo
@@ -24,25 +26,20 @@ $frame walk10 walk11 walk12 walk13 walk14 walk15 walk16 walklo
 $frame run1 run2 run3 run4 run5 run6 run7 run8 runlo
 
 $frame throw1 throw2 throw3 throw4 throw5 throw6 throw7 throw8 throw9
-$frame throw10 throw11 throw12 throw13 throwlo
+$frame throw10 throw11 throw12 throw13 throw14 throwlo
 
-$frame swing1 swing2 swing3 swing4 swing5 swing6 swing7
-$frame swing8 swing9 swing10 swing11 swing12 swing13 swing14
+$frame rama1 rama2 rama3 rama4 rama5 rama6 rama7 rama8 rama9
+$frame rama10 rama11 ramalo
 
-$frame smash1 smash2 smash3 smash4 smash5 smash6 smash7
-$frame smash8 smash9 smash10 smash11 smash12 smash13 smash14
+$frame ramb1 ramb2 ramb3 ramb4 ramb5 ramb6 ramb7 ramb8 ramb9
+$frame ramb10 ramb11 ramblo
 
-$frame pain1 pain2 pain3 pain4 pain5
+$frame pain1 pain2 pain3 pain4 pain5 pain6 painlo
 
-$frame painb1 painb2 painb3
+$frame painb1 painb2 painb3 painb4 painb5 painb6 painb7 painblo
 
-$frame painc1 painc2 painc3 painc4 painc5 painc6
-
-$frame paind1 paind2 paind3 paind4 paind5 paind6 paind7 paind8 paind9 paind10
-$frame paind11 paind12 paind13 paind14 paind15 paind16
-
-$frame paine1 paine2 paine3 paine4 paine5 paine6 paine7 paine8 paine9 paine10
-$frame paine11 paine12 paine13 paine14 paine15
+$frame painc1 painc2 painc3 painc4 painc5 painc6 painc7 painc8 painc9 painc10
+$frame painc11 painc12 painc13 painc14 painc15 painc16 painclo
 
 $frame death1 death2 death3 death4 death5 death6
 $frame death7 death8 death9 death10 death11 death12
@@ -195,6 +192,7 @@ void() DevilFireGrenade =
 	local float dv;
 	local vector delta;
 	local float gravity;
+	local vector target_spot;
 	
 	// Effects
 	sound (self, CHAN_WEAPON, "weapons/grenade.wav", 1, ATTN_NORM);
@@ -212,12 +210,13 @@ void() DevilFireGrenade =
 	
 	// Calculate vertical velocity
 	gravity = cvar("sv_gravity");
-	dv = self.origin_z - self.enemy.origin_z;
+	target_spot = self.enemy.origin + '0 -20 0';
+	dv = self.origin_z - target_spot_z;
 	v_vertical = (400 - (1.6*dv));
 	
 	// Calculate horizontal velocity
 	makevectors (self.angles);
-	delta = self.enemy.origin - self.origin;
+	delta = target_spot - self.origin;
 	delta_z = 0;
 	
 	dh = vlen(delta);
@@ -248,22 +247,32 @@ Melee Stuff
 void(float side) devil_ram =
 {
 	local vector	delta;
-	local float 	ldmg;
+	local vector	dir;
 
 	if (!self.enemy)
 		return;
 	if (!CanDamage (self.enemy, self))
 		return;
 
-	ai_charge(10);
-
 	delta = self.enemy.origin - self.origin;
 
 	if (vlen(delta) > 100)
 		return;
-		
-	ldmg = (random() + random() + random()) * 4;
-	T_Damage (self.enemy, self, self, ldmg);
+	
+	if (self.enemy.flags & FL_MONSTER) {
+		if (self.enemy.flags & FL_ONGROUND) {
+			self.enemy.flags -= FL_ONGROUND;
+		}
+		dir = self.enemy.origin - (self.absmin + self.absmax) * 0.5;
+		dir = normalize(dir);
+		self.enemy.velocity = self.enemy.velocity + dir*DEVIL_MELEE_DAMAGE*8;
+		self.enemy.velocity_z += DEVIL_RAM_FORCE;
+	}
+	else if (self.enemy.classname == "player") {
+		self.enemy.velocity_z += DEVIL_RAM_FORCE;
+	}
+	T_Damage (self.enemy, self, self, DEVIL_MELEE_DAMAGE);
+	
 	
 	if (side)
 	{
@@ -321,49 +330,39 @@ void() devil_run6	=[ $run6,	devil_run7	] {ai_devil_run(15);};
 void() devil_run7	=[ $run7,	devil_run8	] {ai_devil_run(30);};
 void() devil_run8	=[ $run8,	devil_run1	] {ai_devil_run(30);};
 
-void() devil_swing1	=[ $swing1,	devil_swing2	]
+void() devil_rama1	=[ $rama1,	devil_rama2	]
 {
-	ai_charge(11);
-	sound (self, CHAN_WEAPON, "ogre/ogsawatk.wav", 1, ATTN_NORM);
-};
-void() devil_swing2	=[ $swing2,		devil_swing3		] {ai_charge(1);};
-void() devil_swing3	=[ $swing3,		devil_swing4		] {ai_charge(4);};
-void() devil_swing4	=[ $swing4,		devil_swing5		] {ai_charge(13);};
-void() devil_swing5	=[ $swing5,		devil_swing6		] {ai_charge(9);devil_ram(0);self.angles_y=self.angles_y+random()*25;};
-void() devil_swing6	=[ $swing6,		devil_swing7		] {devil_ram(200);self.angles_y=self.angles_y+random()*25;};
-void() devil_swing7	=[ $swing7,		devil_swing8		] {devil_ram(0);self.angles_y=self.angles_y+random()*25;};
-void() devil_swing8	=[ $swing8,		devil_swing9		] {devil_ram(0);self.angles_y=self.angles_y+random()*25;};
-void() devil_swing9	=[ $swing9,		devil_swing10	] {devil_ram(0);self.angles_y=self.angles_y+random()*25;};
-void() devil_swing10	=[ $swing10,	devil_swing11	] {devil_ram(-200);self.angles_y=self.angles_y+random()*25;};
-void() devil_swing11	=[ $swing11,	devil_swing12	] {devil_ram(0);self.angles_y=self.angles_y+random()*25;};
-void() devil_swing12	=[ $swing12,	devil_swing13	] {ai_charge(3);};
-void() devil_swing13	=[ $swing13,	devil_swing14	] {ai_charge(8);};
-void() devil_swing14	=[ $swing14,	devil_run1		] {ai_charge(9);};
-
-void() devil_smash1	=[ $smash1,	devil_smash2	]
-{
+	self.super_armor = 1;
 	ai_charge(6);
 	sound (self, CHAN_WEAPON, "ogre/ogsawatk.wav", 1, ATTN_NORM);
 };
-void() devil_smash2	=[ $smash2,		devil_smash3		] {ai_charge(0);};
-void() devil_smash3	=[ $smash3,		devil_smash4		] {ai_charge(0);};
-void() devil_smash4	=[ $smash4,		devil_smash5		] {ai_charge(1);};
-void() devil_smash5	=[ $smash5,		devil_smash6		] {ai_charge(4);};
-void() devil_smash6	=[ $smash6,		devil_smash7		] {ai_charge(4);devil_ram(0);};
-void() devil_smash7	=[ $smash7,		devil_smash8		] {ai_charge(4);devil_ram(0);};
-void() devil_smash8	=[ $smash8,		devil_smash9		] {ai_charge(10);devil_ram(0);};
-void() devil_smash9	=[ $smash9,		devil_smash10	] {ai_charge(13);devil_ram(0);};
-void() devil_smash10	=[ $smash10,	devil_smash11	] {devil_ram(1);};
-void() devil_smash11	=[ $smash11,	devil_smash12	]
+void() devil_rama2	=[ $rama2, devil_rama3		] {ai_charge(0);};
+void() devil_rama3	=[ $rama3, devil_rama4		] {ai_charge(0);};
+void() devil_rama4	=[ $rama4, devil_rama5		] {ai_charge(0);};
+void() devil_rama5	=[ $rama5, devil_rama6		] {ai_charge(8);};
+void() devil_rama6	=[ $rama6, devil_rama7		] {ai_charge(9);devil_ram(1);};
+void() devil_rama7	=[ $rama7, devil_rama8		] {ai_charge(4);};
+void() devil_rama8	=[ $rama8, devil_rama9		] {ai_charge(1);self.super_armor = 0;};
+void() devil_rama9	=[ $rama9, devil_rama10		] {ai_charge(1);};
+void() devil_rama10	=[ $rama10,	devil_rama11	] {ai_charge(1);};
+void() devil_rama11	=[ $rama11,	devil_run1		] {ai_charge(2);};
+
+void() devil_ramb1	=[ $ramb1,	devil_ramb2	]
 {
-	ai_charge(2);
-	devil_ram(0);
-	// slight variation
-	self.nextthink = self.nextthink + random()*0.2;
+	self.super_armor = 1;
+	ai_charge(6);
+	sound (self, CHAN_WEAPON, "ogre/ogsawatk.wav", 1, ATTN_NORM);
 };
-void() devil_smash12	=[ $smash12,	devil_smash13	] {ai_charge(0);};
-void() devil_smash13	=[ $smash13,	devil_smash14	] {ai_charge(4);};
-void() devil_smash14	=[ $smash14,	devil_run1		] {ai_charge(12);};
+void() devil_ramb2	=[ $ramb2, devil_ramb3		] {ai_charge(0);};
+void() devil_ramb3	=[ $ramb3, devil_ramb4		] {ai_charge(0);};
+void() devil_ramb4	=[ $ramb4, devil_ramb5		] {ai_charge(0);};
+void() devil_ramb5	=[ $ramb5, devil_ramb6		] {ai_charge(8);};
+void() devil_ramb6	=[ $ramb6, devil_ramb7		] {ai_charge(9);devil_ram(1);};
+void() devil_ramb7	=[ $ramb7, devil_ramb8		] {ai_charge(4);};
+void() devil_ramb8	=[ $ramb8, devil_ramb9		] {ai_charge(1);self.super_armor = 0;};
+void() devil_ramb9	=[ $ramb9, devil_ramb10		] {ai_charge(1);};
+void() devil_ramb10	=[ $ramb10,	devil_ramb11	] {ai_charge(1);};
+void() devil_ramb11	=[ $ramb11,	devil_run1		] {ai_charge(2);};
 
 void() devil_throw1		=[ $throw1,	devil_throw2	] {};
 void() devil_throw2		=[ $throw2,	devil_throw3	] {};
@@ -371,66 +370,47 @@ void() devil_throw3		=[ $throw3,	devil_throw4	] {};
 void() devil_throw4		=[ $throw4,	devil_throw5	] {};
 void() devil_throw5		=[ $throw5,	devil_throw6	] {};
 void() devil_throw6		=[ $throw6,	devil_throw7	] {};
-void() devil_throw7		=[ $throw7,	devil_throw8	] {DevilFireGrenade();};
-void() devil_throw8		=[ $throw8,	devil_throw9	] {};
+void() devil_throw7		=[ $throw7,	devil_throw8	] {};
+void() devil_throw8		=[ $throw8,	devil_throw9	] {DevilFireGrenade();};
 void() devil_throw9		=[ $throw9,	devil_throw10	] {};
 void() devil_throw10	=[ $throw10, devil_throw11	] {};
 void() devil_throw11	=[ $throw11, devil_throw12	] {};
 void() devil_throw12	=[ $throw12, devil_throw13	] {};
-void() devil_throw13	=[ $throw13, devil_run1		] {};
+void() devil_throw13	=[ $throw13, devil_throw14	] {};
+void() devil_throw14	=[ $throw14, devil_run1		] {};
 
 void() devil_pain1	=[ $pain1,	devil_pain2	] {};
 void() devil_pain2	=[ $pain2,	devil_pain3	] {};
 void() devil_pain3	=[ $pain3,	devil_pain4	] {};
 void() devil_pain4	=[ $pain4,	devil_pain5	] {};
-void() devil_pain5	=[ $pain5,	devil_run1	] {};
+void() devil_pain5	=[ $pain5,	devil_pain6	] {};
+void() devil_pain6	=[ $pain6,	devil_run1	] {};
 
 
 void() devil_painb1	=[ $painb1,	devil_painb2	] {};
-void() devil_painb2	=[ $painb2,	devil_painb3	] {};
-void() devil_painb3	=[ $painb3,	devil_run1	] {};
+void() devil_painb2	=[ $painb2,	devil_painb3	] {ai_back(2);};
+void() devil_painb3	=[ $painb3,	devil_painb4	] {ai_back(1);};
+void() devil_painb4	=[ $painb4,	devil_painb5	] {};
+void() devil_painb5	=[ $painb5,	devil_painb6	] {};
+void() devil_painb6	=[ $painb6,	devil_painb7	] {ai_back(-1);};
+void() devil_painb7	=[ $painb7,	devil_run1		] {ai_back(-2);};
 
-
-void() devil_painc1	=[ $painc1,	devil_painc2	] {};
-void() devil_painc2	=[ $painc2,	devil_painc3	] {};
-void() devil_painc3	=[ $painc3,	devil_painc4	] {};
-void() devil_painc4	=[ $painc4,	devil_painc5	] {};
-void() devil_painc5	=[ $painc5,	devil_painc6	] {};
-void() devil_painc6	=[ $painc6,	devil_run1	] {};
-
-
-void() devil_paind1	=[ $paind1,		devil_paind2		] {};
-void() devil_paind2	=[ $paind2,		devil_paind3		] {ai_pain(10);};
-void() devil_paind3	=[ $paind3,		devil_paind4		] {ai_pain(9);};
-void() devil_paind4	=[ $paind4,		devil_paind5		] {ai_pain(4);};
-void() devil_paind5	=[ $paind5,		devil_paind6		] {};
-void() devil_paind6	=[ $paind6,		devil_paind7		] {};
-void() devil_paind7	=[ $paind7,		devil_paind8		] {};
-void() devil_paind8	=[ $paind8,		devil_paind9		] {};
-void() devil_paind9	=[ $paind9,		devil_paind10	] {};
-void() devil_paind10	=[ $paind10,	devil_paind11	] {};
-void() devil_paind11	=[ $paind11,	devil_paind12	] {};
-void() devil_paind12	=[ $paind12,	devil_paind13	] {};
-void() devil_paind13	=[ $paind13,	devil_paind14	] {};
-void() devil_paind14	=[ $paind14,	devil_paind15	] {};
-void() devil_paind15	=[ $paind15,	devil_paind16	] {};
-void() devil_paind16	=[ $paind16,	devil_run1		] {};
-
-void() devil_paine1	=[ $paine1,		devil_paine2		] {};
-void() devil_paine2	=[ $paine2,		devil_paine3		] {ai_pain(10);};
-void() devil_paine3	=[ $paine3,		devil_paine4		] {ai_pain(9);};
-void() devil_paine4	=[ $paine4,		devil_paine5		] {ai_pain(4);};
-void() devil_paine5	=[ $paine5,		devil_paine6		] {};
-void() devil_paine6	=[ $paine6,		devil_paine7		] {};
-void() devil_paine7	=[ $paine7,		devil_paine8		] {};
-void() devil_paine8	=[ $paine8,		devil_paine9		] {};
-void() devil_paine9	=[ $paine9,		devil_paine10	] {};
-void() devil_paine10	=[ $paine10,	devil_paine11	] {};
-void() devil_paine11	=[ $paine11,	devil_paine12	] {};
-void() devil_paine12	=[ $paine12,	devil_paine13	] {};
-void() devil_paine13	=[ $paine13,	devil_paine14	] {};
-void() devil_paine14	=[ $paine14,	devil_paine15	] {};
-void() devil_paine15	=[ $paine15,	devil_run1		] {};
+void() devil_painc1		=[ $painc1,		devil_painc2	] {};
+void() devil_painc2		=[ $painc2,		devil_painc3	] {ai_back(9);};
+void() devil_painc3		=[ $painc3,		devil_painc4	] {ai_back(7);};
+void() devil_painc4		=[ $painc4,		devil_painc5	] {ai_back(1);};
+void() devil_painc5		=[ $painc5,		devil_painc6	] {ai_back(2);};
+void() devil_painc6		=[ $painc6,		devil_painc7	] {ai_back(2);};
+void() devil_painc7		=[ $painc7,		devil_painc8	] {ai_back(3);};
+void() devil_painc8		=[ $painc8,		devil_painc9	] {ai_back(6);};
+void() devil_painc9		=[ $painc9,		devil_painc10	] {ai_back(6);};
+void() devil_painc10	=[ $painc10,	devil_painc11	] {ai_back(3);};
+void() devil_painc11	=[ $painc11,	devil_painc12	] {ai_back(0);};
+void() devil_painc12	=[ $painc12,	devil_painc13	] {ai_back(-1);};
+void() devil_painc13	=[ $painc13,	devil_painc14	] {ai_back(-2);};
+void() devil_painc14	=[ $painc14,	devil_painc15	] {ai_back(-3);};
+void() devil_painc15	=[ $painc15,	devil_painc16	] {ai_back(-2);};
+void() devil_painc16	=[ $painc16,	devil_run1		] {ai_back(-4);};
 
 
 void(entity attacker, float damage)	devil_pain =
@@ -440,35 +420,30 @@ void(entity attacker, float damage)	devil_pain =
 // don't make multiple pain sounds right after each other
 	if (self.pain_finished > time)
 		return;
+	
+	// Immune to stun during its ram attack
+	if (self.super_armor) {
+		return;
+	}
 
 	sound (self, CHAN_VOICE, "ogre/ogpain1.wav", 1, ATTN_NORM);		
 
 	r = random();
 	
-	if (r < 0.25)
+	if (r < 0.45)
 	{
 		devil_pain1 ();
 		self.pain_finished = time + 1;
 	}
-	else if (r < 0.5)
+	else if (r < 0.88)
 	{
 		devil_painb1 ();
 		self.pain_finished = time + 1;
 	}
-	else if (r < 0.75)
-	{
-		devil_painc1 ();
-		self.pain_finished = time + 1;
-	}
-	else if (r < 0.88)
-	{
-		devil_paind1 ();
-		self.pain_finished = time + 2;
-	}
 	else
 	{
-		devil_paine1 ();
-		self.pain_finished = time + 2;
+		devil_painc1 ();
+		self.pain_finished = time + 4;
 	}
 };
 
@@ -527,10 +502,10 @@ void() devil_die =
 
 void() devil_melee =
 {
-	if (random() > 0.5)
-		devil_smash1 ();
+	if (random() < 0.66)
+		devil_rama1 ();
 	else
-		devil_swing1 ();
+		devil_ramb1 ();
 };
 
 float(float height) DevilCheckSight = {
