@@ -3,6 +3,7 @@
 localization_id1.qc	//localization file
 defs.qc
 helpers.qc
+mathlib.qc
 subs.qc
 gamemodes.qc
 fight.qc
@@ -30,8 +31,6 @@ wizard.qc
 dog.qc
 zombie.qc
 boss.qc
-lostsoul.qc
-painelem.qc
 
 tarbaby.qc		// registered
 hknight.qc		// registered
@@ -39,3 +38,7 @@ fish.qc			// registered
 shalrath.qc		// registered
 enforcer.qc		// registered
 oldone.qc		// registered
+
+lostsoul.qc
+painelem.qc
+devil.qc		// modded

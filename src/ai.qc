@@ -278,6 +278,8 @@ local float	rsnd;
 
 	if (self.classname == "monster_ogre")	
 		sound (self, CHAN_AUTO, "ogre/ogwake.wav", 1, ATTN_NORM);
+	else if (self.classname == "monster_devil")	
+		sound (self, CHAN_AUTO, "ogre/ogwake.wav", 1, ATTN_NORM);
 	else if (self.classname == "monster_knight")
 		sound (self, CHAN_AUTO, "knight/ksight.wav", 1, ATTN_NORM);
 	else if (self.classname == "monster_shambler")
@@ -631,15 +633,18 @@ float()	WizardCheckAttack;
 float()	DogCheckAttack;
 float()	SoulCheckAttack;
 float()	PainelemCheckAttack;
+float()	DevilCheckAttack;
 
 float() CheckAnyAttack =
 {
-	if (!enemy_vis)
+	if (!enemy_vis && self.classname != "monster_devil")
 		return FALSE;
 	if (self.classname == "monster_army")
 		return SoldierCheckAttack ();
 	if (self.classname == "monster_ogre")
 		return OgreCheckAttack ();
+	if (self.classname == "monster_devil")
+		return DevilCheckAttack ();
 	if (self.classname == "monster_shambler")
 		return ShamCheckAttack ();
 	if (self.classname == "monster_demon1")

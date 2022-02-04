@@ -1797,6 +1797,7 @@ void(entity targ, entity attacker) ClientObituary =
 				else if (attacker.classname == "monster_hell_knight")	{bprint (PRINT_MEDIUM, LOC_DEATH_HELL_KNIGHT);}
 				else if (attacker.classname == "monster_knight")		{bprint (PRINT_MEDIUM, LOC_DEATH_KNIGHT);}
 				else if (attacker.classname == "monster_ogre")			{bprint (PRINT_MEDIUM, LOC_DEATH_OGRE);}
+				else if (attacker.classname == "monster_devil")			{bprint (PRINT_MEDIUM, LOC_DEATH_DEVIL);}
 				else if (attacker.classname == "monster_oldone")		{bprint (PRINT_MEDIUM, LOC_DEATH_OLDONE);}
 				else if (attacker.classname == "monster_boss")			{bprint (PRINT_MEDIUM, LOC_DEATH_BOSS);}
 				else if (attacker.classname == "monster_shalrath")		{bprint (PRINT_MEDIUM, LOC_DEATH_SHALRATH);}

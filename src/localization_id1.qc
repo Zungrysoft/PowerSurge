@@ -102,6 +102,7 @@
 #define LOC_DEATH_ENFORCER 			" was mowed down by a Gunner"
 #define LOC_DEATH_DOG 				" was mauled by a Rottweiler"
 #define LOC_DEATH_OGRE 				" was destroyed by an Ogre"
+#define LOC_DEATH_DEVIL				" was obliterated by a Devil"
 #define LOC_DEATH_DEMON1 			" was eviscerated by a Fiend"
 #define LOC_DEATH_WIZARD 			" was scragged by a Scrag"
 #define LOC_DEATH_ZOMBIE			" joins the Zombies"

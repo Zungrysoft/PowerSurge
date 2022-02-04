@@ -1252,7 +1252,8 @@ W_IncreaseAmmoCap
 
 ============
 */
-void() W_IncreaseAmmoCap =
+void() W_IncreaseAmmoCap = {}
+/*void() W_IncreaseAmmoCap =
 {
 	if (deathmatch) {
 		return;
@@ -1278,7 +1279,7 @@ void() W_IncreaseAmmoCap =
 			centerprint(self, LOC_EXPAND_ROCKETS);
 		}
 	}
-}
+}*/
 
 /*
 ============
