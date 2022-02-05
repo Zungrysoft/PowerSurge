@@ -440,6 +440,8 @@ float() FindTarget =
 		return FALSE;
 	if (client.items & IT_INVISIBILITY)
 		return FALSE;
+	if (client.movetype == MOVETYPE_NONE)
+		return FALSE;
 
 	r = range (client);
 	if (r == RANGE_FAR)
