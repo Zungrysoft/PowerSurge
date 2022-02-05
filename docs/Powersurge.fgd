@@ -223,7 +223,7 @@
 @PointClass base(Monster) size(-16 -16 -32, 16 16 40) model({ "path": ":progs/soldier.mdl" }) = monster_army : "Grunt" []
 @PointClass base(Monster) size(-32 -32 -32, 32 32 40) model({ "path": ":progs/dog.mdl" }) = monster_dog : "Rottweiler" []
 @PointClass base(Monster) size(-32 -32 -32, 32 32 64) model({ "path": ":progs/ogre.mdl" }) = monster_ogre : "Ogre" []
-@PointClass base(Monster) size(-32 -32 -32, 32 32 64) model({ "path": ":progs/ogre.mdl" }) = monster_devil : "Devil" []
+@PointClass base(Monster) size(-32 -32 -32, 32 32 64) model({ "path": ":progs/devil.mdl" }) = monster_devil : "Devil" []
 @PointClass base(Monster) size(-16 -16 -24, 16 16 40) model({ "path": ":progs/knight.mdl" }) = monster_knight : "Knight" []
 @PointClass base(Monster) size(-16 -16 -24, 16 16 40) model({ "path": ":progs/hknight.mdl" }) = monster_hell_knight : "Hell knight" []
 @PointClass base(Monster) size(-16 -16 -24, 16 16 40) model({ "path": ":progs/wizard.mdl" }) = monster_wizard : "Scrag" []
