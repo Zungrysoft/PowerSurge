@@ -231,10 +231,9 @@ void() DevilFireGrenade =
 	delta = normalize(delta);
 	missile.velocity = v_horizontal * delta;
 	missile.velocity_z = v_vertical;
-
-	missile.avelocity = '0 0 0';
-	missile.avelocity_y = (random() * 300) + 100;
-	//missile.avelocity_y = (random() * 100) + 600;
+	
+	missile.avelocity_x = 0;
+	missile.avelocity_y = (random() * 400) + 100;
 	missile.avelocity_z = (random() * 100) + 600;
 	missile.angles = vectoangles(missile.velocity);
 	
