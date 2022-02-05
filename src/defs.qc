@@ -747,6 +747,9 @@ float bad_blood;
 #define ROCKET_CAP 20
 #define CAP_MULTIPLIER 1.5
 
+// Defines mass for resistance to knockback-based attacks
+.float mass;
+
 //Additional settings added by LibreQuake, stored in temp1
 
 //No automatic switch when picking up a new weapon

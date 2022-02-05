@@ -455,6 +455,7 @@ void() monster_ogre =
 
 	setsize (self, VEC_HULL2_MIN, VEC_HULL2_MAX);
 	self.health = 200;
+	self.mass = 1.6;
 
 	self.th_stand = ogre_stand1;
 	self.th_walk = ogre_walk1;

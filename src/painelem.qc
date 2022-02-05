@@ -558,6 +558,7 @@ void() monster_pain_elemental = {
 	
 	setsize (self, VEC_HULL2_MIN, VEC_HULL2_MAX);
 	self.health = 500;
+	self.mass = 2.0;
 	self.count = 5;
 	
 	self.th_stand = painelem_stand1;

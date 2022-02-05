@@ -334,6 +334,7 @@ void() monster_demon1 =
 
 	setsize (self, VEC_HULL2_MIN, VEC_HULL2_MAX);
 	self.health = 300;
+	self.mass = 2.0;
 
 	self.th_stand = demon1_stand1;
 	self.th_walk = demon1_walk1;

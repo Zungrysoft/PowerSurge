@@ -279,6 +279,7 @@ void() monster_army =
 
 	setsize (self, '-16 -16 -24', '16 16 40');
 	self.health = 30;
+	self.mass = 0.8;
 
 	self.th_stand = army_stand1;
 	self.th_walk = army_walk1;

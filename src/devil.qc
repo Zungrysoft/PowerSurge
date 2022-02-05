@@ -8,6 +8,7 @@ Devil
 #define DEVIL_MELEE_DAMAGE 67
 #define DEVIL_RAM_FORCE 550
 #define DEVIL_GRENADE_DAMAGE 45
+#define DEVIL_PAIN_THRESHOLD 80
 #define DEVIL_FOLLOW_RANGE_MAX 512
 #define DEVIL_FOLLOW_RANGE_MIN 256
 #define DEVIL_CLOSEST_DIST 64
@@ -42,11 +43,7 @@ $frame painc1 painc2 painc3 painc4 painc5 painc6 painc7 painc8 painc9 painc10
 $frame painc11 painc12 painc13 painc14 painc15 painc16 painclo
 
 $frame death1 death2 death3 death4 death5 death6
-$frame death7 death8 death9 death10 death11 death12
-$frame death13 death14
-
-$frame bdeath1 bdeath2 bdeath3 bdeath4 bdeath5 bdeath6
-$frame bdeath7 bdeath8 bdeath9 bdeath10
+$frame death7 death8 death9 death10
 
 //=============================================================================
 
@@ -248,6 +245,7 @@ void(float side) devil_ram =
 {
 	local vector	delta;
 	local vector	dir;
+	local float		force_multiplier;
 
 	if (!self.enemy)
 		return;
@@ -260,13 +258,21 @@ void(float side) devil_ram =
 		return;
 	
 	if (self.enemy.flags & FL_MONSTER) {
+		if (self.enemy.mass) {
+			force_multiplier = 1 / self.enemy.mass;
+		}
+		else {
+			force_multiplier = 1;
+		}
+		
 		if (self.enemy.flags & FL_ONGROUND) {
 			self.enemy.flags -= FL_ONGROUND;
 		}
 		dir = self.enemy.origin - (self.absmin + self.absmax) * 0.5;
 		dir = normalize(dir);
-		self.enemy.velocity = self.enemy.velocity + dir*DEVIL_MELEE_DAMAGE*8;
-		self.enemy.velocity_z += DEVIL_RAM_FORCE;
+		
+		self.enemy.velocity = self.enemy.velocity + dir*DEVIL_MELEE_DAMAGE*8*force_multiplier;
+		self.enemy.velocity_z += DEVIL_RAM_FORCE * force_multiplier;
 	}
 	else if (self.enemy.classname == "player") {
 		self.enemy.velocity_z += DEVIL_RAM_FORCE;
@@ -332,7 +338,7 @@ void() devil_run8	=[ $run8,	devil_run1	] {ai_devil_run(30);};
 
 void() devil_rama1	=[ $rama1,	devil_rama2	]
 {
-	self.super_armor = 1;
+	self.super_armor = time + 0.8;
 	ai_charge(6);
 	sound (self, CHAN_WEAPON, "ogre/ogsawatk.wav", 1, ATTN_NORM);
 };
@@ -342,14 +348,14 @@ void() devil_rama4	=[ $rama4, devil_rama5		] {ai_charge(0);};
 void() devil_rama5	=[ $rama5, devil_rama6		] {ai_charge(8);};
 void() devil_rama6	=[ $rama6, devil_rama7		] {ai_charge(9);devil_ram(1);};
 void() devil_rama7	=[ $rama7, devil_rama8		] {ai_charge(4);};
-void() devil_rama8	=[ $rama8, devil_rama9		] {ai_charge(1);self.super_armor = 0;};
+void() devil_rama8	=[ $rama8, devil_rama9		] {ai_charge(1);};
 void() devil_rama9	=[ $rama9, devil_rama10		] {ai_charge(1);};
 void() devil_rama10	=[ $rama10,	devil_rama11	] {ai_charge(1);};
 void() devil_rama11	=[ $rama11,	devil_run1		] {ai_charge(2);};
 
 void() devil_ramb1	=[ $ramb1,	devil_ramb2	]
 {
-	self.super_armor = 1;
+	self.super_armor = time + 0.8;
 	ai_charge(6);
 	sound (self, CHAN_WEAPON, "ogre/ogsawatk.wav", 1, ATTN_NORM);
 };
@@ -359,7 +365,7 @@ void() devil_ramb4	=[ $ramb4, devil_ramb5		] {ai_charge(0);};
 void() devil_ramb5	=[ $ramb5, devil_ramb6		] {ai_charge(8);};
 void() devil_ramb6	=[ $ramb6, devil_ramb7		] {ai_charge(9);devil_ram(1);};
 void() devil_ramb7	=[ $ramb7, devil_ramb8		] {ai_charge(4);};
-void() devil_ramb8	=[ $ramb8, devil_ramb9		] {ai_charge(1);self.super_armor = 0;};
+void() devil_ramb8	=[ $ramb8, devil_ramb9		] {ai_charge(1);};
 void() devil_ramb9	=[ $ramb9, devil_ramb10		] {ai_charge(1);};
 void() devil_ramb10	=[ $ramb10,	devil_ramb11	] {ai_charge(1);};
 void() devil_ramb11	=[ $ramb11,	devil_run1		] {ai_charge(2);};
@@ -422,7 +428,11 @@ void(entity attacker, float damage)	devil_pain =
 		return;
 	
 	// Immune to stun during its ram attack
-	if (self.super_armor) {
+	if (self.super_armor < time) {
+		return;
+	}
+	
+	if (damage < random() * DEVIL_PAIN_THRESHOLD) {
 		return;
 	}
 
@@ -447,37 +457,16 @@ void(entity attacker, float damage)	devil_pain =
 	}
 };
 
-void() devil_die1	=[ $death1,	devil_die2	] {};
-void() devil_die2	=[ $death2,	devil_die3	] {};
-void() devil_die3	=[ $death3,	devil_die4	]
-{
-	self.solid = SOLID_NOT;
-};
-void() devil_die4	=[ $death4,		devil_die5	] {};
-void() devil_die5	=[ $death5,		devil_die6	] {};
-void() devil_die6	=[ $death6,		devil_die7	] {};
-void() devil_die7	=[ $death7,		devil_die8	] {};
-void() devil_die8	=[ $death8,		devil_die9	] {};
-void() devil_die9	=[ $death9,		devil_die10	] {};
-void() devil_die10	=[ $death10,	devil_die11	] {};
-void() devil_die11	=[ $death11,	devil_die12	] {};
-void() devil_die12	=[ $death12,	devil_die13	] {};
-void() devil_die13	=[ $death13,	devil_die14	] {};
-void() devil_die14	=[ $death14,	devil_die14	] {};
-
-void() devil_bdie1	=[ $bdeath1,	devil_bdie2	] {};
-void() devil_bdie2	=[ $bdeath2,	devil_bdie3	] {ai_forward(5);};
-void() devil_bdie3	=[ $bdeath3,	devil_bdie4	]
-{
-	self.solid = SOLID_NOT;
-};
-void() devil_bdie4	=[ $bdeath4,	devil_bdie5	] {ai_forward(1);};
-void() devil_bdie5	=[ $bdeath5,	devil_bdie6	] {ai_forward(3);};
-void() devil_bdie6	=[ $bdeath6,	devil_bdie7	] {ai_forward(7);};
-void() devil_bdie7	=[ $bdeath7,	devil_bdie8	] {ai_forward(25);};
-void() devil_bdie8	=[ $bdeath8,	devil_bdie9	] {};
-void() devil_bdie9	=[ $bdeath9,	devil_bdie10	] {};
-void() devil_bdie10	=[ $bdeath10,	devil_bdie10	] {};
+void() devil_death1		=[ $death1,		devil_death2	] {};
+void() devil_death2		=[ $death2,		devil_death3	] {ai_back(8);};
+void() devil_death3		=[ $death3,		devil_death4	] {ai_back(10);self.solid = SOLID_NOT;};
+void() devil_death4		=[ $death4,		devil_death5	] {ai_back(9);};
+void() devil_death5		=[ $death5,		devil_death6	] {ai_back(13);};
+void() devil_death6		=[ $death6,		devil_death7	] {ai_back(17);};
+void() devil_death7		=[ $death7,		devil_death8	] {ai_back(8);};
+void() devil_death8		=[ $death8,		devil_death9	] {};
+void() devil_death9		=[ $death9,		devil_death10	] {};
+void() devil_death10	=[ $death10,	devil_death10	] {};
 
 void() devil_die =
 {
@@ -495,9 +484,9 @@ void() devil_die =
 	sound (self, CHAN_VOICE, "ogre/ogdth.wav", 1, ATTN_NORM);
 	
 	if (random() < 0.5)
-		devil_die1 ();
+		devil_death1 ();
 	else
-		devil_bdie1 ();
+		devil_death1 ();
 };
 
 void() devil_melee =
@@ -608,6 +597,7 @@ void() monster_devil =
 
 	setsize (self, VEC_HULL2_MIN, VEC_HULL2_MAX);
 	self.health = 250;
+	self.mass = 1.8;
 
 	self.th_stand = devil_stand1;
 	self.th_walk = devil_walk1;
