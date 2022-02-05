@@ -6,6 +6,7 @@ Devil
 
 // Balancing Parameters
 #define DEVIL_MELEE_DAMAGE 67
+#define DEVIL_MELEE_RANGE 95
 #define DEVIL_RAM_FORCE 550
 #define DEVIL_GRENADE_DAMAGE 45
 #define DEVIL_PAIN_THRESHOLD 80
@@ -142,6 +143,14 @@ void(float dist) ai_devil_run = {
 Grenade Stuff
 =============
 */
+void() DevilGrenadeThink =
+{
+	self.nextthink = time + 0.05 + (random() * 0.1);
+	self.think = DevilGrenadeThink;
+	
+	self.frame = (self.frame + 1) % 5;
+};
+
 void() DevilGrenadeExplode =
 {
 	T_RadiusDamage (self, self.owner, DEVIL_GRENADE_DAMAGE, world, "");
@@ -190,9 +199,7 @@ void() DevilFireGrenade =
 	local vector delta;
 	local float gravity;
 	local vector target_spot;
-	
-	// Effects
-	sound (self, CHAN_WEAPON, "weapons/grenade.wav", 1, ATTN_NORM);
+	local vector throw_spot;
 	
 	// Set up the grenade
 	missile = spawn ();
@@ -201,19 +208,20 @@ void() DevilFireGrenade =
 	missile.solid = SOLID_BBOX;
 	missile.touch = DevilGrenadeTouch;
 	
-	// Explode automatically after 5 seconds
-	missile.nextthink = time + 5;
-	missile.think = DevilGrenadeExplode;
+	// Animation
+	missile.nextthink = time + 0.1;
+	missile.think = DevilGrenadeThink;
 	
 	// Calculate vertical velocity
 	gravity = cvar("sv_gravity");
-	target_spot = self.enemy.origin + '0 -20 0';
-	dv = self.origin_z - target_spot_z;
+	target_spot = self.enemy.origin + '0 0 -20';
+	throw_spot = self.origin + '0 0 16';
+	dv = throw_spot_z - target_spot_z;
 	v_vertical = (400 - (1.6*dv));
 	
 	// Calculate horizontal velocity
 	makevectors (self.angles);
-	delta = target_spot - self.origin;
+	delta = target_spot - throw_spot;
 	delta_z = 0;
 	
 	dh = vlen(delta);
@@ -224,13 +232,16 @@ void() DevilFireGrenade =
 	missile.velocity = v_horizontal * delta;
 	missile.velocity_z = v_vertical;
 
-	missile.avelocity = '300 300 300';
+	missile.avelocity = '0 0 0';
+	missile.avelocity_y = (random() * 300) + 100;
+	//missile.avelocity_y = (random() * 100) + 600;
+	missile.avelocity_z = (random() * 100) + 600;
 	missile.angles = vectoangles(missile.velocity);
 	
 	// Model and origin
-	setmodel (missile, "progs/grenade.mdl");
+	setmodel (missile, "progs/dynamite.mdl");
 	setsize (missile, '0 0 0', '0 0 0');		
-	setorigin (missile, self.origin);
+	setorigin (missile, throw_spot);
 };
 
 
@@ -254,7 +265,7 @@ void(float side) devil_ram =
 
 	delta = self.enemy.origin - self.origin;
 
-	if (vlen(delta) > 100)
+	if (vlen(delta) > DEVIL_MELEE_RANGE)
 		return;
 	
 	if (self.enemy.flags & FL_MONSTER) {
@@ -279,6 +290,8 @@ void(float side) devil_ram =
 	}
 	T_Damage (self.enemy, self, self, DEVIL_MELEE_DAMAGE);
 	
+	// Sound
+	sound (self, CHAN_WEAPON, "devil/ram.wav", 1, ATTN_NORM);
 	
 	if (side)
 	{
@@ -292,7 +305,7 @@ void(float side) devil_ram =
 
 void() DevilIdle = {
 	if (random() < 0.2)
-		sound (self, CHAN_VOICE, "ogre/ogidle.wav", 1, ATTN_IDLE);
+		sound (self, CHAN_VOICE, "devil/idle.wav", 1, ATTN_IDLE);
 }
 
 
@@ -340,10 +353,9 @@ void() devil_rama1	=[ $rama1,	devil_rama2	]
 {
 	self.super_armor = time + 0.8;
 	ai_charge(6);
-	sound (self, CHAN_WEAPON, "ogre/ogsawatk.wav", 1, ATTN_NORM);
 };
 void() devil_rama2	=[ $rama2, devil_rama3		] {ai_charge(0);};
-void() devil_rama3	=[ $rama3, devil_rama4		] {ai_charge(0);};
+void() devil_rama3	=[ $rama3, devil_rama4		] {ai_charge(0);sound (self, CHAN_WEAPON, "painelem/swipe.wav", 1, ATTN_NORM);};
 void() devil_rama4	=[ $rama4, devil_rama5		] {ai_charge(0);};
 void() devil_rama5	=[ $rama5, devil_rama6		] {ai_charge(8);};
 void() devil_rama6	=[ $rama6, devil_rama7		] {ai_charge(9);devil_ram(1);};
@@ -357,10 +369,9 @@ void() devil_ramb1	=[ $ramb1,	devil_ramb2	]
 {
 	self.super_armor = time + 0.8;
 	ai_charge(6);
-	sound (self, CHAN_WEAPON, "ogre/ogsawatk.wav", 1, ATTN_NORM);
 };
 void() devil_ramb2	=[ $ramb2, devil_ramb3		] {ai_charge(0);};
-void() devil_ramb3	=[ $ramb3, devil_ramb4		] {ai_charge(0);};
+void() devil_ramb3	=[ $ramb3, devil_ramb4		] {ai_charge(0);sound (self, CHAN_WEAPON, "painelem/swipe.wav", 1, ATTN_NORM);};
 void() devil_ramb4	=[ $ramb4, devil_ramb5		] {ai_charge(0);};
 void() devil_ramb5	=[ $ramb5, devil_ramb6		] {ai_charge(8);};
 void() devil_ramb6	=[ $ramb6, devil_ramb7		] {ai_charge(9);devil_ram(1);};
@@ -374,9 +385,9 @@ void() devil_throw1		=[ $throw1,	devil_throw2	] {};
 void() devil_throw2		=[ $throw2,	devil_throw3	] {};
 void() devil_throw3		=[ $throw3,	devil_throw4	] {};
 void() devil_throw4		=[ $throw4,	devil_throw5	] {};
-void() devil_throw5		=[ $throw5,	devil_throw6	] {};
+void() devil_throw5		=[ $throw5,	devil_throw6	] {sound (self, CHAN_ITEM, "devil/rustle.wav", 1, ATTN_NORM);};
 void() devil_throw6		=[ $throw6,	devil_throw7	] {};
-void() devil_throw7		=[ $throw7,	devil_throw8	] {};
+void() devil_throw7		=[ $throw7,	devil_throw8	] {sound (self, CHAN_WEAPON, "devil/throw.wav", 1, ATTN_NORM);};
 void() devil_throw8		=[ $throw8,	devil_throw9	] {DevilFireGrenade();};
 void() devil_throw9		=[ $throw9,	devil_throw10	] {};
 void() devil_throw10	=[ $throw10, devil_throw11	] {};
@@ -428,7 +439,7 @@ void(entity attacker, float damage)	devil_pain =
 		return;
 	
 	// Immune to stun during its ram attack
-	if (self.super_armor < time) {
+	if (self.super_armor > time) {
 		return;
 	}
 	
@@ -436,7 +447,7 @@ void(entity attacker, float damage)	devil_pain =
 		return;
 	}
 
-	sound (self, CHAN_VOICE, "ogre/ogpain1.wav", 1, ATTN_NORM);		
+	sound (self, CHAN_VOICE, "devil/pain.wav", 1, ATTN_NORM);		
 
 	r = random();
 	
@@ -474,14 +485,14 @@ void() devil_die =
 	if (self.health < -80)
 	{
 		sound (self, CHAN_VOICE, "player/udeath.wav", 1, ATTN_NORM);
-		ThrowHead ("progs/h_ogre.mdl", self.health);
+		ThrowHead ("progs/gib3.mdl", self.health);
 		ThrowGib ("progs/gib3.mdl", self.health);
 		ThrowGib ("progs/gib3.mdl", self.health);
 		ThrowGib ("progs/gib3.mdl", self.health);
 		return;
 	}
 
-	sound (self, CHAN_VOICE, "ogre/ogdth.wav", 1, ATTN_NORM);
+	sound (self, CHAN_VOICE, "devil/death.wav", 1, ATTN_NORM);
 	
 	if (random() < 0.5)
 		devil_death1 ();
@@ -581,14 +592,16 @@ void() monster_devil =
 	}
 	precache_model ("progs/devil.mdl");
 	precache_model ("progs/h_ogre.mdl");
-	precache_model ("progs/grenade.mdl");
+	precache_model ("progs/dynamite.mdl");
 
-	precache_sound ("ogre/ogdth.wav");
-	precache_sound ("ogre/ogidle.wav");
-	precache_sound ("ogre/ogidle2.wav");
-	precache_sound ("ogre/ogpain1.wav");
-	precache_sound ("ogre/ogsawatk.wav");
-	precache_sound ("ogre/ogwake.wav");
+	precache_sound ("devil/death.wav");
+	precache_sound ("devil/idle.wav");
+	precache_sound ("devil/pain.wav");
+	precache_sound ("devil/ram.wav");
+	precache_sound ("devil/sight.wav");
+	precache_sound ("devil/throw.wav");
+	precache_sound ("devil/rustle.wav");
+	precache_sound ("painelem/swipe.wav");
 
 	self.solid = SOLID_SLIDEBOX;
 	self.movetype = MOVETYPE_STEP;

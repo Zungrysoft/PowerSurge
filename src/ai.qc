@@ -279,7 +279,7 @@ local float	rsnd;
 	if (self.classname == "monster_ogre")	
 		sound (self, CHAN_AUTO, "ogre/ogwake.wav", 1, ATTN_NORM);
 	else if (self.classname == "monster_devil")	
-		sound (self, CHAN_AUTO, "ogre/ogwake.wav", 1, ATTN_NORM);
+		sound (self, CHAN_AUTO, "devil/sight.wav", 1, ATTN_NORM);
 	else if (self.classname == "monster_knight")
 		sound (self, CHAN_AUTO, "knight/ksight.wav", 1, ATTN_NORM);
 	else if (self.classname == "monster_shambler")
