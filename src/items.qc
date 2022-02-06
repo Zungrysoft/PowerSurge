@@ -3,6 +3,8 @@ void() W_IncreaseAmmoCap;
 /* ALL LIGHTS SHOULD BE 0 1 0 IN COLOR ALL OTHER ITEMS SHOULD
 BE .8 .3 .4 IN COLOR */
 
+#define collected_weapon volume
+
 
 void() SUB_regen =
 {
@@ -747,9 +749,19 @@ void() weapon_touch =
 	local	float	hadammo, best, new, old;
 	local	entity	stemp;
 	local	float	leave;
+	local	float	no_duplicate;
 
 	if (!(other.flags & FL_CLIENT))
 		return;
+	
+	
+	if (cooperative()) {
+		// Can't collect multiple weapons in the same level in coop
+		if (other.collected_weapon) {
+			return;
+		}
+		no_duplicate = 1;
+	}
 
 // if the player was using his best weapon, change up to the new one if better		
 	stemp = self;
@@ -759,12 +771,11 @@ void() weapon_touch =
 
 	if (weaponstay())
 		leave = 1;
-	else
-		leave = 0;
+		no_duplicate = 1;
 	
 	if (self.classname == "weapon_nailgun")
 	{
-		if (leave && (other.items & IT_NAILGUN) )
+		if (no_duplicate && (other.items & IT_NAILGUN) )
 			return;
 		hadammo = other.ammo_nails;			
 		new = IT_NAILGUN;
@@ -772,7 +783,7 @@ void() weapon_touch =
 	}
 	else if (self.classname == "weapon_supernailgun")
 	{
-		if (leave && (other.items & IT_SUPER_NAILGUN) )
+		if (no_duplicate && (other.items & IT_SUPER_NAILGUN) )
 			return;
 		hadammo = other.ammo_rockets;			
 		new = IT_SUPER_NAILGUN;
@@ -780,7 +791,7 @@ void() weapon_touch =
 	}
 	else if (self.classname == "weapon_supershotgun")
 	{
-		if (leave && (other.items & IT_SUPER_SHOTGUN) )
+		if (no_duplicate && (other.items & IT_SUPER_SHOTGUN) )
 			return;
 		hadammo = other.ammo_rockets;			
 		new = IT_SUPER_SHOTGUN;
@@ -788,7 +799,7 @@ void() weapon_touch =
 	}
 	else if (self.classname == "weapon_rocketlauncher")
 	{
-		if (leave && (other.items & IT_ROCKET_LAUNCHER) )
+		if (no_duplicate && (other.items & IT_ROCKET_LAUNCHER) )
 			return;
 		hadammo = other.ammo_rockets;			
 		new = IT_ROCKET_LAUNCHER;
@@ -798,7 +809,7 @@ void() weapon_touch =
 	}
 	else if (self.classname == "weapon_grenadelauncher")
 	{
-		if (leave && (other.items & IT_GRENADE_LAUNCHER) )
+		if (no_duplicate && (other.items & IT_GRENADE_LAUNCHER) )
 			return;
 		hadammo = other.ammo_rockets;			
 		new = IT_GRENADE_LAUNCHER;
@@ -806,7 +817,7 @@ void() weapon_touch =
 	}
 	else if (self.classname == "weapon_lightning")
 	{
-		if (leave && (other.items & IT_LIGHTNING) )
+		if (no_duplicate && (other.items & IT_LIGHTNING) )
 			return;
 		hadammo = other.ammo_rockets;			
 		new = IT_LIGHTNING;
@@ -827,6 +838,9 @@ void() weapon_touch =
 // change to the weapon
 	old = other.items;
 	other.items = other.items | new;
+	
+	// Marks the player as having collected a weapon this level
+	other.collected_weapon = 1;
 	
 	stemp = self;
 	self = other;

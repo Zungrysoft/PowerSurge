@@ -654,7 +654,7 @@ void() trigger_monsterjump_touch =
 		return;
 		
 	// Rage-mode monsterjumps
-	if ( (self.spawnflags & 1) && (other.health > 300) )
+	if ( (self.spawnflags & 1) && (other.health >= self.health) )
 		return;
 	
 	// One-time only monsterjumps

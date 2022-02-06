@@ -601,6 +601,7 @@
 [
 	speed(integer) : "Jump Speed" : 200
 	height(integer) : "Jump Height" : 200
+	health(integer) : "Rage-Mode Health Threshold"
 	spawnflags(flags) = [
 		1: "Rage-Mode" : 0
 		2: "One Monster Only" : 0

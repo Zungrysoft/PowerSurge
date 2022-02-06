@@ -590,7 +590,7 @@ void() monster_devil =
 		return;
 	}
 	precache_model ("progs/devil.mdl");
-	precache_model ("progs/h_ogre.mdl");
+	//precache_model ("progs/h_devil.mdl");
 	precache_model ("progs/dynamite.mdl");
 
 	precache_sound ("devil/death.wav");

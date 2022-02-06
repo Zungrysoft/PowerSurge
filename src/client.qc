@@ -133,6 +133,8 @@ void() SetNewParms =
 
 void() DecodeLevelParms =
 {
+	local float save_weapons;
+	
 //	if (serverflags)
 	if (deathmatch)	
 		SetNewParms ();
@@ -141,7 +143,12 @@ void() DecodeLevelParms =
 	if (world.model == "maps/start.bsp")
 		SetNewParms ();		// take away all stuff on starting new episode
 	
-	self.items = parm1;
+	// Keep your weapons on death in coop
+	if (cooperative()) {
+		save_weapons = self.items & (IT_NAILGUN | IT_SUPER_SHOTGUN | IT_SUPER_NAILGUN | IT_ROCKET_LAUNCHER | IT_GRENADE_LAUNCHER | IT_LIGHTNING);
+	}
+	
+	self.items = parm1 | save_weapons;
 	self.health = parm2;
 	self.armorvalue = parm3;
 	self.ammo_shells = parm4;
