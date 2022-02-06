@@ -716,6 +716,9 @@ float(entity p1, entity p2) OnSameTeam;
 
 .float alpha;
 
+// For switchable shadow support
+.float switchshadstyle;
+
 //
 //	combat.qc
 //

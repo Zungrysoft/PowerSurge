@@ -154,7 +154,6 @@ void() DevilGrenadeThink =
 void() DevilGrenadeExplode =
 {
 	T_RadiusDamage (self, self.owner, DEVIL_GRENADE_DAMAGE, world, "");
-	sound (self, CHAN_VOICE, "weapons/r_exp3.wav", 1, ATTN_NORM);
 
 	WriteByte (MSG_BROADCAST, SVC_TEMPENTITY);
 	WriteByte (MSG_BROADCAST, TE_EXPLOSION);

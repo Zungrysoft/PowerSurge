@@ -1591,10 +1591,15 @@ void() debug_func = {
 	
 	// Determine which weapon to give
 	if (self.items & (IT_SUPER_NAILGUN | IT_GRENADE_LAUNCHER)) {
-		selection = IT_ROCKET_LAUNCHER;
+		if (random() < 0.6) {
+			selection = IT_ROCKET_LAUNCHER;
+		}
+		else {
+			selection = IT_LIGHTNING;
+		}
 	}
 	else if (self.items & (IT_SUPER_SHOTGUN | IT_NAILGUN)) {
-		if (random() < 0.5) {
+		if (random() < 0.5 && !(self.items && IT_NAILGUN)) {
 			selection = IT_SUPER_NAILGUN;
 		}
 		else {
@@ -1602,17 +1607,12 @@ void() debug_func = {
 		}
 	}
 	else {
-		if (random() < 0.5) {
+		if (random() < 0.4) {
 			selection = IT_NAILGUN;
 		}
 		else {
 			selection = IT_SUPER_SHOTGUN;
 		}
-	}
-	
-	// Secret Lightning Gun
-	if (random() < 0.08) {
-		self.items = self.items | IT_LIGHTNING;
 	}
 	
 	// Give the player the weapon and switch to it

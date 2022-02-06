@@ -143,3 +143,37 @@ subtracts one angle from another
 	return answer;
 };
 */
+
+// More math functions written by ZungryWare
+
+/*
+-----------------------------------------
+Minimum
+
+
+-----------------------------------------
+*/
+
+float(float a, float b) min =
+{
+	if (a < b) {
+		return a;
+	}
+	return b;
+};
+
+/*
+-----------------------------------------
+Minimum
+
+
+-----------------------------------------
+*/
+
+float(float a, float b) max =
+{
+	if (a > b) {
+		return a;
+	}
+	return b;
+};

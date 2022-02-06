@@ -28,6 +28,37 @@ THINK FUNCTIONS
 
 void() door_go_down;
 void() door_go_up;
+void() door_shadowmonitor_go;
+
+// For switchable shadows
+void(entity b, string l) bmodel_lightstyle =
+{
+	if (b.style)
+		lightstyle(b.style, l);
+	if (b.switchshadstyle)
+		lightstyle(b.switchshadstyle, l);
+}
+
+string(float f) light_str =
+{
+	// you know what's cool?  arrays.
+	float bright = floor(f * 12 + 0.5);
+	if (bright <= 0 ) return "a";
+	if (bright >= 12) return "m";
+
+	if (bright == 1 ) return "b";
+	if (bright == 2 ) return "c";
+	if (bright == 3 ) return "d";
+	if (bright == 4 ) return "e";
+	if (bright == 5 ) return "f";
+	if (bright == 6 ) return "g";
+	if (bright == 7 ) return "h";
+	if (bright == 8 ) return "i";
+	if (bright == 9 ) return "j";
+	if (bright == 10) return "k";
+	if (bright == 11) return "l";
+	return "a";
+}
 
 void() door_blocked =
 {
@@ -126,7 +157,11 @@ void() door_fire =
 			starte = self;
 			do
 			{
-				door_go_down ();
+				if (self.classname == "shadowmonitor")
+					door_shadowmonitor_go();
+				else
+					door_go_down ();
+				
 				self = self.enemy;
 			} while ( (self != starte) && (self != world) );
 			self = oself;
@@ -139,7 +174,10 @@ void() door_fire =
 	do
 	{
 		self.goalentity = activator;
-		door_go_up ();
+		if (self.classname == "shadowmonitor")
+			door_shadowmonitor_go();
+		else
+			door_go_up ();
 		self = self.enemy;
 	} while ( (self != starte) && (self != world) );
 	self = oself;
@@ -267,6 +305,52 @@ void() door_touch =
 /*
 =============================================================================
 
+SWITCHABLE SHADOWS (This code was taken from the Copper mod)
+
+I do not want to screw around with SUB_CalcMove or bog doors down even further with
+thinking-while-moving, so doors with switchable shadows will spawn a little helper
+monitor to do that to keep mover code clean
+
+=============================================================================
+*/
+
+void() door_shadowmonitor_go =
+{
+	float frac;
+	entity o = self.owner;
+	if (o.state == STATE_TOP)
+		frac = 1;
+	else if (o.state == STATE_BOTTOM)
+		frac = 0;
+	else
+		frac = vlen(o.origin - o.pos1) / vlen(o.pos2 - o.pos1);
+	
+	if (o.spawnflags & DOOR_START_OPEN)
+		frac = 1 - frac;
+
+	bmodel_lightstyle(o, light_str(frac));
+
+	self.nextthink = time + min(0.05, (o.nextthink - o.ltime));
+	self.think = door_shadowmonitor_go;
+}
+
+void(entity d) door_shadowmonitor =
+{
+	entity m = spawn();
+	m.classname = "shadowmonitor";
+	m.owner = d;
+	m.enemy = d.enemy;
+	d.enemy = m;
+
+	if (!(d.spawnflags & DOOR_START_OPEN))
+	{
+		bmodel_lightstyle(d, "a");
+	}
+}
+
+/*
+=============================================================================
+
 SPAWNING FUNCTIONS
 
 =============================================================================
@@ -357,15 +441,15 @@ void() LinkDoors =
 			self = self.owner;
 
 			if (self.health)
-				return;
+				break;
 			if (self.targetname)
-				return;
+				break;
 			if (self.items)
-				return;
+				break;
 
 			self.owner.trigger_field = spawn_field(cmins, cmaxs);
 
-			return;
+			break;
 		}
 
 		if (EntitiesTouching(self,t))
@@ -390,7 +474,18 @@ void() LinkDoors =
 				cmaxs_z = t.maxs_z;
 		}
 	} while (1 );
-
+	
+	
+	t = self;
+	do {
+		// put a light fade monitor in the enemy chain
+		if (self.style || self.switchshadstyle)
+		{
+			door_shadowmonitor(t);
+			break;
+		}
+		t = t.enemy;
+	} while (t != self);
 };
 
 
