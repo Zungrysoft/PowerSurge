@@ -376,10 +376,9 @@ void() DevilFireGrenade =
 	// Write calculated velocity to grenade
 	missile.velocity = DevilConvertVelocity(throw_spot, target_spot, v_vertical, v_horizontal);
 	
-	missile.avelocity_x = 0;
-	missile.avelocity_y = (random() * 400) + 100;
 	missile.avelocity_z = (random() * 100) + 600;
-	missile.angles = vectoangles(missile.velocity);
+	missile.angles_x = random() * 360;
+	missile.angles_z = (random() * 90) - 45;
 	
 	// Model and origin
 	setmodel (missile, "progs/dynamite.mdl");
@@ -646,7 +645,7 @@ void() devil_die =
 	if (self.health < -80)
 	{
 		sound (self, CHAN_VOICE, "player/udeath.wav", 1, ATTN_NORM);
-		ThrowHead ("progs/gib3.mdl", self.health);
+		ThrowHead ("progs/h_devil.mdl", self.health);
 		ThrowGib ("progs/gib3.mdl", self.health);
 		ThrowGib ("progs/gib3.mdl", self.health);
 		ThrowGib ("progs/gib3.mdl", self.health);
@@ -724,7 +723,7 @@ void() monster_devil =
 		return;
 	}
 	precache_model ("progs/devil.mdl");
-	//precache_model ("progs/h_devil.mdl");
+	precache_model ("progs/h_devil.mdl");
 	precache_model ("progs/dynamite.mdl");
 
 	precache_sound ("devil/death.wav");
