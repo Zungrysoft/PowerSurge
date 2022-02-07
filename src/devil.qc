@@ -9,15 +9,19 @@ Devil
 #define DEVIL_MELEE_RANGE 95
 #define DEVIL_RAM_FORCE 550
 #define DEVIL_GRENADE_DAMAGE 45
-#define DEVIL_PAIN_THRESHOLD 80
+#define DEVIL_PAIN_THRESHOLD 85
 #define DEVIL_FOLLOW_RANGE_MAX 512
 #define DEVIL_FOLLOW_RANGE_MIN 256
 #define DEVIL_CLOSEST_DIST 64
-#define DEVIL_CHECK_ANGLES 16
+#define DEVIL_CHECK_ANGLES 24
 #define DEVIL_CHECK_DISTANCES 3
+#define DEVIL_SIM_STEP 0.04
+#define DEVIL_SIM_ITER 20
+#define DEVIL_SIM_COMPENSATE 0.94
 
 #define target_marker trigger_field
 #define super_armor count
+#define chosen_angle volume
 
 $frame stand1 stand2 stand3 stand4 stand5 stand6 stand7 stand8 stand9
 $frame stand10 stand11 stand12 stand13 standlo
@@ -188,17 +192,136 @@ void() DevilGrenadeTouch =
 	DevilGrenadeExplode();
 };
 
+// Calculates the vertical velocity based on height difference
+float(vector throw_spot, vector target_spot) DevilCalculateVertical {
+	local float gravity;
+	local float dv;
+	
+	gravity = cvar("sv_gravity");
+	
+	dv = throw_spot_z - target_spot_z;
+	return 400 - (1.6*dv);
+}
+
+// Calculates horizontal velocity based on vertical velocity
+float(vector throw_spot, vector target_spot, float v_vertical) DevilCalculateHorizontal {
+	local float gravity;
+	local vector delta;
+	local float dh;
+	local float dv;
+	
+	makevectors (self.angles);
+	gravity = cvar("sv_gravity");
+	dv = throw_spot_z - target_spot_z;
+	delta = target_spot - throw_spot;
+	delta_z = 0;
+	
+	dh = vlen(delta);
+	return dh/((v_vertical + sqrt((v_vertical*v_vertical) + (2*dv*gravity)))/gravity);
+}
+
+// Converts from horizontal and vertical velocity into an actual vector
+vector(vector throw_spot, vector target_spot, float v_vertical, float v_horizontal) DevilConvertVelocity {
+	local vector delta;
+	local vector result;
+	
+	delta = target_spot - throw_spot;
+	delta_z = 0;
+	delta = normalize(delta);
+	
+	result = v_horizontal * delta;
+	result_z = v_vertical;
+	return result;
+}
+
+// Simulates a throw for the dynamite to make sure it won't hit geo or another target
+// Returns the resulting vertical velocity on target hit
+// Returns -1 on target miss
+float(float v_extra) DevilSimulateRun = {
+	local float counter;
+	local float gravity;
+	local vector cur;
+	local vector next;
+	local float v_vertical;
+	local float v_horizontal;
+	local vector sim_velocity;
+	
+	local vector throw_spot;
+	local vector target_spot;
+	
+	// Determine where the dynamite source and destination
+	throw_spot = self.origin + '0 0 16';
+	target_spot = self.enemy.origin + '0 0 -20';
+	
+	// Get world gravity value
+	gravity = cvar("sv_gravity");
+
+	// Calculate the velocity we're testing here
+	v_vertical = v_extra + DevilCalculateVertical(throw_spot, target_spot);
+	v_horizontal = DevilCalculateHorizontal(throw_spot, target_spot, v_vertical);
+	
+	// Calculate starting velocity vector
+	sim_velocity = DevilConvertVelocity(throw_spot, target_spot, v_vertical, v_horizontal);
+	// Helps the dynamite clear walls
+	// The sim may clip corners, so this makes the sim test a bit lower
+	sim_velocity_z = sim_velocity_z * DEVIL_SIM_COMPENSATE;
+	
+	// Step through the simulation
+	cur = throw_spot;
+	counter = DEVIL_SIM_ITER;
+	while (counter > 0) {
+		// Step
+		next = cur + (sim_velocity * DEVIL_SIM_STEP);
+		
+		// Debug
+		//particle(next, '0 0 0', 250, 9);
+		
+		// Check for collision
+		traceline (cur, next, FALSE, self);
+		if (trace_fraction < 1 && trace_ent != self.enemy) {
+			return -1;
+		}
+		
+		// Acceleration due to gravity
+		sim_velocity_z -= gravity * DEVIL_SIM_STEP;
+		
+		// Increment
+		cur = next;
+		counter = counter - 1;
+	}
+	
+	// Didn't hit anything
+	return v_vertical;
+}
+
+// Figures out what angle (if any) the devil should throw its dynamite
+// Returns the resulting vertical velocity of the successful throw on target hit
+// Returns -1 if it did not find any angle with a target hit
+float() DevilSimulateThrow = {
+	local float sim_result;
+	local float angles_try[7] = {0, 64, 128, 256, -64, -128, -256};
+	for (float i = 0; i < 7; i ++) {
+		sim_result = DevilSimulateRun(angles_try[i]);
+		if (sim_result != -1) {
+			return sim_result;
+		}
+	}
+	
+	return -1;
+}
+
 void() DevilFireGrenade =
 {
 	local entity missile;
 	local float v_vertical;
 	local float v_horizontal;
-	local float dh;
-	local float dv;
-	local vector delta;
-	local float gravity;
-	local vector target_spot;
+	
 	local vector throw_spot;
+	local vector target_spot;
+	
+	// Determine where the dynamite source and destination
+	throw_spot = self.origin + '0 0 16';
+	target_spot = self.enemy.origin + '0 0 -20';
 	
 	// Set up the grenade
 	missile = spawn ();
@@ -211,25 +334,19 @@ void() DevilFireGrenade =
 	missile.nextthink = time + 0.1;
 	missile.think = DevilGrenadeThink;
 	
-	// Calculate vertical velocity
-	gravity = cvar("sv_gravity");
-	target_spot = self.enemy.origin + '0 0 -20';
-	throw_spot = self.origin + '0 0 16';
-	dv = throw_spot_z - target_spot_z;
-	v_vertical = (400 - (1.6*dv));
+	// Simulate the velocity again since the player has probably moved since we checked
+	v_vertical = DevilSimulateThrow();
 	
-	// Calculate horizontal velocity
-	makevectors (self.angles);
-	delta = target_spot - throw_spot;
-	delta_z = 0;
+	// If there is no longer a valid throw, just throw at normal height
+	if (v_vertical == -1) {
+		v_vertical = DevilCalculateVertical(throw_spot, target_spot);
+	}
 	
-	dh = vlen(delta);
-	v_horizontal = dh/((v_vertical + sqrt((v_vertical*v_vertical) + (2*dv*gravity)))/gravity);
+	// Calculate horizontal
+	v_horizontal = DevilCalculateHorizontal(throw_spot, target_spot, v_vertical);
 	
 	// Write calculated velocity to grenade
-	delta = normalize(delta);
-	missile.velocity = v_horizontal * delta;
-	missile.velocity_z = v_vertical;
+	missile.velocity = DevilConvertVelocity(throw_spot, target_spot, v_vertical, v_horizontal);
 	
 	missile.avelocity_x = 0;
 	missile.avelocity_y = (random() * 400) + 100;
@@ -241,7 +358,6 @@ void() DevilFireGrenade =
 	setsize (missile, '0 0 0', '0 0 0');		
 	setorigin (missile, throw_spot);
 };
-
 
 //=============================================================================
 
@@ -541,6 +657,7 @@ float(float height) DevilCheckSight = {
 float() DevilCheckAttack =
 {
 	local float		chance;
+	local float		sim_result;
 	
 	if (enemy_range == RANGE_MELEE)
 	{
@@ -554,12 +671,18 @@ float() DevilCheckAttack =
 	if (time < self.attack_finished)
 		return FALSE;
 	
-// see if any entities are in the way of the shot
-	if ((!DevilCheckSight(0)) && 
+	/*if ((!DevilCheckSight(0)) && 
 		(!DevilCheckSight(64)) &&
 		(!DevilCheckSight(128))) {
 		return FALSE;
+	}*/
+	
+	// Simulate the throw to see if it will hit the player
+	sim_result = DevilSimulateThrow();
+	if (sim_result == -1) {
+		return FALSE;
 	}
+	self.chosen_angle = sim_result;
 	
 // missile attack
 	if (time < self.attack_finished)
