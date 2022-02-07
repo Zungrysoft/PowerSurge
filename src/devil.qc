@@ -515,7 +515,7 @@ void() devil_rama1	=[ $rama1,	devil_rama2	]
 	ai_charge(6);
 };
 void() devil_rama2	=[ $rama2, devil_rama3		] {ai_charge(0);};
-void() devil_rama3	=[ $rama3, devil_rama4		] {ai_charge(0);sound (self, CHAN_WEAPON, "painelem/swipe.wav", 1, ATTN_NORM);};
+void() devil_rama3	=[ $rama3, devil_rama4		] {ai_charge(0);sound (self, CHAN_WEAPON, "devil/swipe.wav", 1, ATTN_NORM);};
 void() devil_rama4	=[ $rama4, devil_rama5		] {ai_charge(0);};
 void() devil_rama5	=[ $rama5, devil_rama6		] {ai_charge(8);};
 void() devil_rama6	=[ $rama6, devil_rama7		] {ai_charge(9);DevilRam(1);};
@@ -531,7 +531,7 @@ void() devil_ramb1	=[ $ramb1,	devil_ramb2	]
 	ai_charge(6);
 };
 void() devil_ramb2	=[ $ramb2, devil_ramb3		] {ai_charge(0);};
-void() devil_ramb3	=[ $ramb3, devil_ramb4		] {ai_charge(0);sound (self, CHAN_WEAPON, "painelem/swipe.wav", 1, ATTN_NORM);};
+void() devil_ramb3	=[ $ramb3, devil_ramb4		] {ai_charge(0);sound (self, CHAN_WEAPON, "devil/swipe.wav", 1, ATTN_NORM);};
 void() devil_ramb4	=[ $ramb4, devil_ramb5		] {ai_charge(0);};
 void() devil_ramb5	=[ $ramb5, devil_ramb6		] {ai_charge(8);};
 void() devil_ramb6	=[ $ramb6, devil_ramb7		] {ai_charge(9);DevilRam(1);};
@@ -733,7 +733,7 @@ void() monster_devil =
 	precache_sound ("devil/sight.wav");
 	precache_sound ("devil/throw.wav");
 	precache_sound ("devil/rustle.wav");
-	precache_sound ("painelem/swipe.wav");
+	precache_sound ("devil/swipe.wav");
 
 	self.solid = SOLID_SLIDEBOX;
 	self.movetype = MOVETYPE_STEP;
