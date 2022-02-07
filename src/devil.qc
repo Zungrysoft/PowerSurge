@@ -5,19 +5,20 @@ Devil
 */
 
 // Balancing Parameters
-#define DEVIL_MELEE_DAMAGE 67
-#define DEVIL_MELEE_RANGE 95
+#define DEVIL_MELEE_DAMAGE 58
+#define DEVIL_MELEE_RANGE 70
 #define DEVIL_RAM_FORCE 550
 #define DEVIL_GRENADE_DAMAGE 45
+#define DEVIL_MAX_THROW_VELOCITY 1100
 #define DEVIL_PAIN_THRESHOLD 85
 #define DEVIL_FOLLOW_RANGE_MAX 512
 #define DEVIL_FOLLOW_RANGE_MIN 256
 #define DEVIL_CLOSEST_DIST 64
 #define DEVIL_CHECK_ANGLES 24
 #define DEVIL_CHECK_DISTANCES 3
-#define DEVIL_SIM_STEP 0.04
-#define DEVIL_SIM_ITER 20
-#define DEVIL_SIM_COMPENSATE 0.94
+#define DEVIL_SIM_STEP 0.08
+#define DEVIL_SIM_ITER 30
+#define DEVIL_SIM_COMPENSATE '0 0 32'
 
 #define target_marker trigger_field
 #define super_armor count
@@ -245,13 +246,16 @@ float(float v_extra) DevilSimulateRun = {
 	local float v_vertical;
 	local float v_horizontal;
 	local vector sim_velocity;
+	local float checked_ceiling;
 	
 	local vector throw_spot;
 	local vector target_spot;
 	
 	// Determine where the dynamite source and destination
-	throw_spot = self.origin + '0 0 16';
-	target_spot = self.enemy.origin + '0 0 -20';
+	// DEVIL_SIM_COMPENSATE Helps the dynamite clear tall walls
+	// The sim may clip corners, so this makes the sim test a bit lower
+	throw_spot = self.origin + '0 0 16' - DEVIL_SIM_COMPENSATE;
+	target_spot = self.enemy.origin + '0 0 -20' - DEVIL_SIM_COMPENSATE;
 	
 	// Get world gravity value
 	gravity = cvar("sv_gravity");
@@ -262,9 +266,16 @@ float(float v_extra) DevilSimulateRun = {
 	
 	// Calculate starting velocity vector
 	sim_velocity = DevilConvertVelocity(throw_spot, target_spot, v_vertical, v_horizontal);
-	// Helps the dynamite clear walls
-	// The sim may clip corners, so this makes the sim test a bit lower
-	sim_velocity_z = sim_velocity_z * DEVIL_SIM_COMPENSATE;
+	
+	// Make sure the vertical velocity didn't end up negative
+	if (sim_velocity_z <= 10) {
+		return -1;
+	}
+	
+	// This guy can only throw so far
+	if (vlen(sim_velocity) > DEVIL_MAX_THROW_VELOCITY) {
+		return -1;
+	}
 	
 	// Step through the simulation
 	cur = throw_spot;
@@ -276,10 +287,27 @@ float(float v_extra) DevilSimulateRun = {
 		// Debug
 		//particle(next, '0 0 0', 250, 9);
 		
-		// Check for collision
+		// Do the trace
 		traceline (cur, next, FALSE, self);
+		
+		// Check if it hit the target
+		if (trace_ent == self.enemy) {
+			return v_vertical;
+		}
+		
+		//Check for collision with something else
 		if (trace_fraction < 1 && trace_ent != self.enemy) {
 			return -1;
+		}
+		
+		// At the apex of the throw, also check up a little bit
+		// Prevents slamming into ceilings
+		if (!checked_ceiling && sim_velocity_z < 200) {
+			checked_ceiling = TRUE;
+			traceline (cur, cur + (DEVIL_SIM_COMPENSATE * 1.5), FALSE, self);
+			if (trace_fraction < 1 && trace_ent != self.enemy) {
+				return -1;
+			}
 		}
 		
 		// Acceleration due to gravity
@@ -299,8 +327,8 @@ float(float v_extra) DevilSimulateRun = {
 // Returns -1 if it did not find any angle with a target hit
 float() DevilSimulateThrow = {
 	local float sim_result;
-	local float angles_try[7] = {0, 64, 128, 256, -64, -128, -256};
-	for (float i = 0; i < 7; i ++) {
+	local float angles_try[10] = {0, 64, 128, 192, 256, 384, 512, -512, -64, -196};
+	for (float i = 0; i < 10; i ++) {
 		sim_result = DevilSimulateRun(angles_try[i]);
 		if (sim_result != -1) {
 			return sim_result;
@@ -323,6 +351,17 @@ void() DevilFireGrenade =
 	throw_spot = self.origin + '0 0 16';
 	target_spot = self.enemy.origin + '0 0 -20';
 	
+	// Simulate the velocity again since the player has probably moved since we checked
+	v_vertical = DevilSimulateThrow();
+	
+	// If there is no longer a valid throw, exit
+	if (v_vertical == -1) {
+		return;
+	}
+	
+	// Calculate horizontal
+	v_horizontal = DevilCalculateHorizontal(throw_spot, target_spot, v_vertical);
+	
 	// Set up the grenade
 	missile = spawn ();
 	missile.owner = self;
@@ -333,17 +372,6 @@ void() DevilFireGrenade =
 	// Animation
 	missile.nextthink = time + 0.1;
 	missile.think = DevilGrenadeThink;
-	
-	// Simulate the velocity again since the player has probably moved since we checked
-	v_vertical = DevilSimulateThrow();
-	
-	// If there is no longer a valid throw, just throw at normal height
-	if (v_vertical == -1) {
-		v_vertical = DevilCalculateVertical(throw_spot, target_spot);
-	}
-	
-	// Calculate horizontal
-	v_horizontal = DevilCalculateHorizontal(throw_spot, target_spot, v_vertical);
 	
 	// Write calculated velocity to grenade
 	missile.velocity = DevilConvertVelocity(throw_spot, target_spot, v_vertical, v_horizontal);
@@ -357,6 +385,9 @@ void() DevilFireGrenade =
 	setmodel (missile, "progs/dynamite.mdl");
 	setsize (missile, '0 0 0', '0 0 0');		
 	setorigin (missile, throw_spot);
+	
+	// Sound effect
+	sound (self, CHAN_WEAPON, "devil/throw.wav", 1, ATTN_NORM);
 };
 
 //=============================================================================
@@ -366,9 +397,25 @@ void() DevilFireGrenade =
 Melee Stuff
 ===========
 */
-void(float side) devil_ram =
-{
+float() DevilRamRange = {
 	local vector	delta;
+	local float		hit_range;
+	
+	delta = self.enemy.origin - self.origin;
+	
+	if (self.enemy.classname == "player") {
+		hit_range = DEVIL_MELEE_RANGE;
+	}
+	else {
+		hit_range = 100;
+	}
+
+	if (vlen(delta) <= hit_range)
+		return TRUE;
+	return FALSE;
+}
+
+void(float side) DevilRam = {
 	local vector	dir;
 	local float		force_multiplier;
 
@@ -376,11 +423,10 @@ void(float side) devil_ram =
 		return;
 	if (!CanDamage (self.enemy, self))
 		return;
-
-	delta = self.enemy.origin - self.origin;
-
-	if (vlen(delta) > DEVIL_MELEE_RANGE)
+	
+	if (!DevilRamRange()) {
 		return;
+	}
 	
 	if (self.enemy.flags & FL_MONSTER) {
 		if (self.enemy.mass) {
@@ -418,8 +464,9 @@ void(float side) devil_ram =
 };
 
 void() DevilIdle = {
-	if (random() < 0.2)
+	if (random() < 0.2) {
 		sound (self, CHAN_VOICE, "devil/idle.wav", 1, ATTN_IDLE);
+	}
 }
 
 
@@ -472,7 +519,7 @@ void() devil_rama2	=[ $rama2, devil_rama3		] {ai_charge(0);};
 void() devil_rama3	=[ $rama3, devil_rama4		] {ai_charge(0);sound (self, CHAN_WEAPON, "painelem/swipe.wav", 1, ATTN_NORM);};
 void() devil_rama4	=[ $rama4, devil_rama5		] {ai_charge(0);};
 void() devil_rama5	=[ $rama5, devil_rama6		] {ai_charge(8);};
-void() devil_rama6	=[ $rama6, devil_rama7		] {ai_charge(9);devil_ram(1);};
+void() devil_rama6	=[ $rama6, devil_rama7		] {ai_charge(9);DevilRam(1);};
 void() devil_rama7	=[ $rama7, devil_rama8		] {ai_charge(4);};
 void() devil_rama8	=[ $rama8, devil_rama9		] {ai_charge(1);};
 void() devil_rama9	=[ $rama9, devil_rama10		] {ai_charge(1);};
@@ -488,7 +535,7 @@ void() devil_ramb2	=[ $ramb2, devil_ramb3		] {ai_charge(0);};
 void() devil_ramb3	=[ $ramb3, devil_ramb4		] {ai_charge(0);sound (self, CHAN_WEAPON, "painelem/swipe.wav", 1, ATTN_NORM);};
 void() devil_ramb4	=[ $ramb4, devil_ramb5		] {ai_charge(0);};
 void() devil_ramb5	=[ $ramb5, devil_ramb6		] {ai_charge(8);};
-void() devil_ramb6	=[ $ramb6, devil_ramb7		] {ai_charge(9);devil_ram(1);};
+void() devil_ramb6	=[ $ramb6, devil_ramb7		] {ai_charge(9);DevilRam(1);};
 void() devil_ramb7	=[ $ramb7, devil_ramb8		] {ai_charge(4);};
 void() devil_ramb8	=[ $ramb8, devil_ramb9		] {ai_charge(1);};
 void() devil_ramb9	=[ $ramb9, devil_ramb10		] {ai_charge(1);};
@@ -501,7 +548,7 @@ void() devil_throw3		=[ $throw3,	devil_throw4	] {};
 void() devil_throw4		=[ $throw4,	devil_throw5	] {};
 void() devil_throw5		=[ $throw5,	devil_throw6	] {sound (self, CHAN_ITEM, "devil/rustle.wav", 1, ATTN_NORM);};
 void() devil_throw6		=[ $throw6,	devil_throw7	] {};
-void() devil_throw7		=[ $throw7,	devil_throw8	] {sound (self, CHAN_WEAPON, "devil/throw.wav", 1, ATTN_NORM);};
+void() devil_throw7		=[ $throw7,	devil_throw8	] {};
 void() devil_throw8		=[ $throw8,	devil_throw9	] {DevilFireGrenade();};
 void() devil_throw9		=[ $throw9,	devil_throw10	] {};
 void() devil_throw10	=[ $throw10, devil_throw11	] {};
@@ -631,19 +678,16 @@ float() DevilCheckAttack =
 	{
 		if (CanDamage (self.enemy, self))
 		{
-			self.attack_state = AS_MELEE;
-			return TRUE;
+			if (DevilRamRange())
+			{
+				self.attack_state = AS_MELEE;
+				return TRUE;
+			}
 		}
 	}
 
 	if (time < self.attack_finished)
 		return FALSE;
-	
-	/*if ((!DevilCheckSight(0)) && 
-		(!DevilCheckSight(64)) &&
-		(!DevilCheckSight(128))) {
-		return FALSE;
-	}*/
 	
 	// Simulate the throw to see if it will hit the player
 	sim_result = DevilSimulateThrow();

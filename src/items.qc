@@ -769,9 +769,10 @@ void() weapon_touch =
 	best = W_BestWeapon();
 	self = stemp;
 
-	if (weaponstay())
+	if (weaponstay()) {
 		leave = 1;
 		no_duplicate = 1;
+	}
 	
 	if (self.classname == "weapon_nailgun")
 	{
