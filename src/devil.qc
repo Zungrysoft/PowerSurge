@@ -622,38 +622,6 @@ void() devil_melee =
 		devil_ramb1 ();
 };
 
-float(float height) DevilCheckSight = {
-	local vector	spot1, spot2;
-	local entity	targ;
-	local vector	delta;
-	
-	delta_z = height;
-	
-	targ = self.enemy;
-	
-	spot1 = self.origin + self.view_ofs + delta;
-	spot2 = targ.origin + targ.view_ofs;
-	
-	// Make sure the projectile will be able to clear the lip
-	if (height > 100) {
-		if (vlen(self.origin - self.enemy.origin) > 200) {
-			return FALSE;
-		}
-	}
-
-	traceline (spot1, spot2, FALSE, self);
-
-	if (trace_inopen && trace_inwater)
-		return FALSE;			// sight line crossed contents
-
-	if (trace_ent != targ)
-	{
-		return FALSE;	// don't have a clear shot
-	}
-	
-	return TRUE;
-}
-
 float() DevilCheckAttack =
 {
 	local float		chance;
