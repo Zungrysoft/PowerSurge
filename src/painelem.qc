@@ -308,6 +308,29 @@ void() painelem_Shoot =
 	missile.touch = Fireball_Touch;
 };
 
+// Checks if a lost soul is stuck in a wall
+#define SOUL_CHECK_SUBDIVISIONS 3
+float(vector loc) painelem_InWall = {
+	local vector pos;
+	
+	for (float cx = 0; cx <= 1; cx += 1/(SOUL_CHECK_SUBDIVISIONS-1)) {
+		for (float cy = 0; cy <= 1; cy += 1/(SOUL_CHECK_SUBDIVISIONS-1)) {
+			for (float cz = 0; cz <= 1; cz += 1/(SOUL_CHECK_SUBDIVISIONS-1)) {
+				pos = loc;
+				pos_x += (VEC_HULL_MIN_x * cx) + (VEC_HULL_MAX_x * (1-cx));
+				pos_y += (VEC_HULL_MIN_y * cy) + (VEC_HULL_MAX_y * (1-cy));
+				pos_z += (VEC_HULL_MIN_z * cz) + (VEC_HULL_MAX_z * (1-cz));
+				// Debug
+				particle(pos, '0 0 0', 250, 9);
+				if (pointcontents(pos) == CONTENT_SOLID) {
+					return 1;
+				}
+			}
+		}
+	}
+	return 0;
+}
+
 void() painelem_Deploy = {
 	entity missile;
 	entity oself;
@@ -356,9 +379,12 @@ void() painelem_Deploy = {
 	missile.think = soul_precharge4;
 	missile.nextthink = time + .01;
 	
-	
 	total_monsters = total_monsters + 1;
 	update_monsters();
+	
+	if (painelem_InWall(missile.origin)) {
+		missile.th_die();
+	}
 }
 
 // Pain elementals on death
@@ -372,6 +398,7 @@ void(vector offset, float angle) painelem_Release = {
 	missile.classname = "monster_lostsoul";
 	missile.angles_y = angle;
 	missile.lefty = 1;
+	missile.owner = self;
 
 	oself = self;
 	self = missile;
@@ -381,6 +408,10 @@ void(vector offset, float angle) painelem_Release = {
 	self = oself;
 	
 	update_monsters();
+	
+	if (painelem_InWall(missile.origin)) {
+		missile.th_die();
+	}
 }
 
 void() painelem_attacka1 = [ $attacka1, painelem_attacka2 ] {ai_face();eye_position('0 16.741 37.384');painelem_Wind();};
@@ -484,6 +515,7 @@ void()	painelem_death8	= [ $paina3, painelem_death8 ] {
 	painelem_Release('0 35 20',90);
 	painelem_Release('23 -23 40',330);
 	painelem_Release('-23 -23 60',210);
+	painelem_Release('-23 -23 -100',210);
 };
 
 //Determine whether it was gibbed instantly, or it should run the death sequence and then gib.

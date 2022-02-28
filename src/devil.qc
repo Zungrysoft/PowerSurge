@@ -33,7 +33,7 @@ $frame walk10 walk11 walk12 walk13 walk14 walk15 walk16 walklo
 $frame run1 run2 run3 run4 run5 run6 run7 run8 runlo
 
 $frame throw1 throw2 throw3 throw4 throw5 throw6 throw7 throw8 throw9
-$frame throw10 throw11 throw12 throw13 throw14 throwlo
+$frame throw10 throw11 throw12 throw13 throwlo
 
 $frame rama1 rama2 rama3 rama4 rama5 rama6 rama7 rama8 rama9
 $frame rama10 rama11 ramalo
@@ -544,17 +544,16 @@ void() devil_ramb11	=[ $ramb11,	devil_run1		] {ai_charge(2);};
 void() devil_throw1		=[ $throw1,	devil_throw2	] {};
 void() devil_throw2		=[ $throw2,	devil_throw3	] {};
 void() devil_throw3		=[ $throw3,	devil_throw4	] {};
-void() devil_throw4		=[ $throw4,	devil_throw5	] {};
-void() devil_throw5		=[ $throw5,	devil_throw6	] {sound (self, CHAN_ITEM, "devil/rustle.wav", 1, ATTN_NORM);};
+void() devil_throw4		=[ $throw4,	devil_throw5	] {sound (self, CHAN_ITEM, "devil/rustle.wav", 1, ATTN_NORM);};
+void() devil_throw5		=[ $throw5,	devil_throw6	] {};
 void() devil_throw6		=[ $throw6,	devil_throw7	] {};
-void() devil_throw7		=[ $throw7,	devil_throw8	] {};
-void() devil_throw8		=[ $throw8,	devil_throw9	] {DevilFireGrenade();};
-void() devil_throw9		=[ $throw9,	devil_throw10	] {};
+void() devil_throw7		=[ $throw7,	devil_throw8	] {DevilFireGrenade();};
+void() devil_throw8		=[ $throw8,	devil_throw9	] {};
+void() devil_throw9		=[ $throw9, devil_throw10	] {};
 void() devil_throw10	=[ $throw10, devil_throw11	] {};
 void() devil_throw11	=[ $throw11, devil_throw12	] {};
 void() devil_throw12	=[ $throw12, devil_throw13	] {};
-void() devil_throw13	=[ $throw13, devil_throw14	] {};
-void() devil_throw14	=[ $throw14, devil_run1		] {};
+void() devil_throw13	=[ $throw13, devil_run1		] {};
 
 void() devil_pain1	=[ $pain1,	devil_pain2	] {};
 void() devil_pain2	=[ $pain2,	devil_pain3	] {};

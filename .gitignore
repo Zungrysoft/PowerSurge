@@ -4,6 +4,9 @@
 # Screenshots
 *.png
 
+# Save Files
+*.sav
+
 # Compile stuff
 progs.lno
 PowerSurge.zip

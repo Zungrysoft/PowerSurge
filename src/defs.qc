@@ -748,6 +748,7 @@ float bad_blood;
 #define SHELL_CAP 100
 #define NAIL_CAP 200
 #define ROCKET_CAP 20
+#define CELL_CAP 100
 #define CAP_MULTIPLIER 1.5
 
 // Defines mass for resistance to knockback-based attacks

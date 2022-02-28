@@ -672,15 +672,25 @@ void() bound_other_ammo =
 		max_rockets = ROCKET_CAP;
 	}
 	
-	if (other.ammo_shells > 100)
-		other.ammo_shells = 100;
+	if (other.ammo_shells > max_shells)
+		other.ammo_shells = max_shells;
 	if (other.ammo_nails > max_nails)
 		other.ammo_nails = max_nails;
-	if (other.ammo_rockets > 100)
-		other.ammo_rockets = 100;		
-	if (other.ammo_cells > 100)
-		other.ammo_cells = 100;		
+	if (other.ammo_rockets > max_rockets)
+		other.ammo_rockets = max_rockets;		
+	if (other.ammo_cells > CELL_CAP)
+		other.ammo_cells = CELL_CAP;		
 };
+
+void() bind_ammo =
+{
+	local entity old_other;
+	
+	old_other = other;
+	other = self;
+	bound_other_ammo();
+	other = old_other;
+}
 
 
 float(float w) RankForWeapon =

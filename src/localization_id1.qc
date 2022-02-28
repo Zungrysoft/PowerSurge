@@ -113,7 +113,7 @@
 #define LOC_DEATH_SHALRATH 			" was exploded by a Vore"
 #define LOC_DEATH_TARBABY 			" was slimed by a Spawn"
 #define LOC_DEATH_BOSS 				" was fireballed by Cthon"
-#define LOC_DEATH_LOSTSOUL 			" was chomped by a Lost Soul"
+#define LOC_DEATH_LOSTSOUL 			" was chased by a Lost Soul"
 #define LOC_DEATH_PAIN_ELEMENTAL	" was threshed by a Pain Elemental"
 #define LOC_DEATH_LOSTSOUL_SPAWN	" was swarmed by a Pain Elemental"
 #define LOC_DEATH_BOSS2 			" was killed by a ???"

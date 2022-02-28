@@ -42,6 +42,7 @@ $frame grow1 grow2 grow3 grow4 grow5 grow6 grow7 grow8 grow9 grow10
 
 void() Soul_Charge_Touch;
 void() Soul_Charge;
+void() Soul_Project;
 void() Soul_Bounce;
 void() Soul_Reel;
 void() Soul_Accelerate;
@@ -78,7 +79,7 @@ void() soul_run5 = [ $hover5, soul_run6 ] {ai_run(1);};
 void() soul_run6 = [ $hover6, soul_run1 ] {ai_run(1);soul_idlesound();};
 
 //Starts by facing the player, then it calls the charge function and loops repeatedly.
-void() soul_precharge1 = [ $hover1, soul_precharge2 ] {ai_face();};
+void() soul_precharge1 = [ $hover1, soul_precharge2 ] {ai_face();Soul_Project();};
 void() soul_precharge2 = [ $hover2, soul_precharge3 ] {ai_face();};
 void() soul_precharge3 = [ $hover3, soul_precharge4 ] {ai_face();};
 void() soul_precharge4 = [ $charge6, soul_charge1 ] {Soul_Charge();};

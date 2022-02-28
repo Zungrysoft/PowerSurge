@@ -38,9 +38,9 @@
 @baseclass = Appearflags [
 	spawnflags(Flags) =
 	[
-		256 : "Not on Easy" : 0
-		512 : "Not on Normal" : 0
-		1024 : "Not on Hard" : 0
+		256 : "Not on Normal" : 0
+		512 : "Not on Hard" : 0
+		1024 : "Not on Meltdown" : 0
 		2048 : "Not in Deathmatch" : 0
 	]
 ]
@@ -220,18 +220,18 @@
 	]
 ]
 
-@PointClass base(Monster) size(-16 -16 -32, 16 16 40) model({ "path": ":progs/soldier.mdl" }) = monster_army : "Grunt" []
-@PointClass base(Monster) size(-32 -32 -32, 32 32 40) model({ "path": ":progs/dog.mdl" }) = monster_dog : "Rottweiler" []
-@PointClass base(Monster) size(-32 -32 -32, 32 32 64) model({ "path": ":progs/ogre.mdl" }) = monster_ogre : "Ogre" []
-@PointClass base(Monster) size(-32 -32 -32, 32 32 64) model({ "path": ":progs/devil.mdl" }) = monster_devil : "Devil" []
+@PointClass base(Monster) size(-16 -16 -24, 16 16 40) model({ "path": ":progs/soldier.mdl" }) = monster_army : "Grunt" []
+@PointClass base(Monster) size(-32 -32 -24, 32 32 40) model({ "path": ":progs/dog.mdl" }) = monster_dog : "Rottweiler" []
+@PointClass base(Monster) size(-32 -32 -24, 32 32 64) model({ "path": ":progs/ogre.mdl" }) = monster_ogre : "Ogre" []
+@PointClass base(Monster) size(-32 -32 -24, 32 32 64) model({ "path": ":progs/devil.mdl" }) = monster_devil : "Devil" []
 @PointClass base(Monster) size(-16 -16 -24, 16 16 40) model({ "path": ":progs/knight.mdl" }) = monster_knight : "Knight" []
 @PointClass base(Monster) size(-16 -16 -24, 16 16 40) model({ "path": ":progs/hknight.mdl" }) = monster_hell_knight : "Hell knight" []
 @PointClass base(Monster) size(-16 -16 -24, 16 16 40) model({ "path": ":progs/wizard.mdl" }) = monster_wizard : "Scrag" []
-@PointClass base(Monster) size(-32 -32 -32, 32 32 64) model({ "path": ":progs/demon.mdl" }) = monster_demon1 : "Fiend" []
-@PointClass base(Monster) size(-32 -32 -32, 32 32 64) model({ "path": ":progs/shambler.mdl" }) = monster_shambler : "Shambler" []
+@PointClass base(Monster) size(-32 -32 -24, 32 32 64) model({ "path": ":progs/demon.mdl" }) = monster_demon1 : "Fiend" []
+@PointClass base(Monster) size(-32 -32 -24, 32 32 64) model({ "path": ":progs/shambler.mdl" }) = monster_shambler : "Shambler" []
 @PointClass base(Monster) size(-128 -128 -24, 128 128 256) model({ "path": ":progs/boss.mdl" }) = monster_boss : "Chthon" []
 @PointClass base(Monster) size(-16 -16 -24, 16 16 40) model({ "path": ":progs/gunner.mdl" }) = monster_enforcer : "Enforcer" []
-@PointClass base(Monster) size(-32 -32 -32, 32 32 64) model({ "path": ":progs/shalrath.mdl" }) = monster_shalrath : "Vore" []
+@PointClass base(Monster) size(-32 -32 -24, 32 32 64) model({ "path": ":progs/shalrath.mdl" }) = monster_shalrath : "Vore" []
 @PointClass base(Monster) size(-16 -16 -24, 16 16 24) model({ "path": ":progs/tarbaby.mdl" }) = monster_tarbaby : "Spawn" []
 @PointClass base(Monster) size(-16 -16 -24, 16 16 24) model({ "path": ":progs/fish.mdl" }) = monster_fish : "Rotfish" []
 @PointClass base(Monster) size(-16 -16 -24, 16 16 32) model({ "path": ":progs/oldone.mdl" }) = monster_oldone : "Shub-Niggurath" []
@@ -245,7 +245,12 @@
 ]
 
 @PointClass base(Monster) size(-16 -16 -24, 16 16 24) model({ "path": ":progs/lostsoul.mdl" }) = monster_lostsoul : "Lost Soul" []
-@PointClass base(Monster) size(-32 -32 -24, 32 32 64) model({ "path": ":progs/painelem.mdl" }) = monster_pain_elemental : "Pain Elemental" []
+@PointClass base(Monster) size(-32 -32 -24, 32 32 64) model({ "path": ":progs/painelem.mdl" }) = monster_pain_elemental : "Pain Elemental" [
+	spawnflags(Flags) =
+	[
+		2 : "Children Inherit Target" : 0
+	]
+]
 
 //
 // lights

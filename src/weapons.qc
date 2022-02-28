@@ -1380,9 +1380,10 @@ void() CheatCommand =
 	if (deathmatch || cooperative())
 		return;
 
-	self.ammo_rockets = 100;
-	self.ammo_nails = 200;
-	self.ammo_shells = 100;
+	self.ammo_rockets = 9999;
+	self.ammo_nails = 9999;
+	self.ammo_shells = 9999;
+	self.ammo_cells = 9999;
 	self.items = self.items | 
 		IT_AXE |
 		IT_SHOTGUN |
@@ -1391,13 +1392,12 @@ void() CheatCommand =
 		IT_SUPER_NAILGUN |
 		IT_GRENADE_LAUNCHER |
 		IT_ROCKET_LAUNCHER |
+		IT_LIGHTNING |
 		IT_KEY1 | IT_KEY2;
-
-	self.ammo_cells = 100;
-	self.items = self.items | IT_LIGHTNING;
 
 	self.weapon = IT_ROCKET_LAUNCHER;
 	self.impulse = 0;
+	bind_ammo();
 	W_SetCurrentAmmo ();
 	
 	bprint (PRINT_HIGH, "Weapons Cheat\n");
@@ -1599,7 +1599,7 @@ void() debug_func = {
 		}
 	}
 	else if (self.items & (IT_SUPER_SHOTGUN | IT_NAILGUN)) {
-		if (random() < 0.5 && !(self.items && IT_NAILGUN)) {
+		if (random() < 0.5 && !(self.items & IT_NAILGUN)) {
 			selection = IT_SUPER_NAILGUN;
 		}
 		else {
@@ -1621,6 +1621,7 @@ void() debug_func = {
 	
 	W_SetCurrentAmmo ();
 	W_IncreaseAmmoCap();
+	bind_ammo();
 }
 
 /*
