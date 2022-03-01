@@ -308,29 +308,6 @@ void() painelem_Shoot =
 	missile.touch = Fireball_Touch;
 };
 
-// Checks if a lost soul is stuck in a wall
-#define SOUL_CHECK_SUBDIVISIONS 3
-float(vector loc) painelem_InWall = {
-	local vector pos;
-	
-	for (float cx = 0; cx <= 1; cx += 1/(SOUL_CHECK_SUBDIVISIONS-1)) {
-		for (float cy = 0; cy <= 1; cy += 1/(SOUL_CHECK_SUBDIVISIONS-1)) {
-			for (float cz = 0; cz <= 1; cz += 1/(SOUL_CHECK_SUBDIVISIONS-1)) {
-				pos = loc;
-				pos_x += (VEC_HULL_MIN_x * cx) + (VEC_HULL_MAX_x * (1-cx));
-				pos_y += (VEC_HULL_MIN_y * cy) + (VEC_HULL_MAX_y * (1-cy));
-				pos_z += (VEC_HULL_MIN_z * cz) + (VEC_HULL_MAX_z * (1-cz));
-				// Debug
-				particle(pos, '0 0 0', 250, 9);
-				if (pointcontents(pos) == CONTENT_SOLID) {
-					return 1;
-				}
-			}
-		}
-	}
-	return 0;
-}
-
 void() painelem_Deploy = {
 	entity missile;
 	entity oself;
@@ -340,78 +317,29 @@ void() painelem_Deploy = {
 	
 	//Spawns the monster
 	missile = spawn();
+	missile.classname = "monster_lostsoul";
 
 	//Set all of the necessary properties of the new monster
-	missile.solid = SOLID_SLIDEBOX;
-	missile.movetype = MOVETYPE_FLY;
-	missile.takedamage = DAMAGE_AIM;
-	missile.owner = self;
-
-	setmodel (missile, "progs/lostsoul.mdl");
-	
-	setorigin (missile, self.origin + '0 0 24');
-	setsize (missile, VEC_HULL_MIN, VEC_HULL_MAX);
-	missile.angles = self.angles;
-	missile.health = 40;
-	missile.classname = "monster_lostsoul";
-	missile.lefty = 1;
-
-	missile.th_stand = soul_stand1;
-	missile.th_walk = soul_walk1;
-	missile.th_run = soul_run1;
-	missile.th_die = soul_die;
-	missile.th_missile = soul_missile;
-	missile.th_pain = soul_pain;
-	missile.touch = SUB_Null;
-		
-	if (self.spawnflags & 2) {
-		missile.target = self.target;
-		missile.alpha = self.alpha;
-	}
-	
 	oself = self;
 	self = missile;
-	flymonster_start_go();
+	soul_spawn_launch(oself);
 	self = oself;
-	
-	missile.enemy = self.enemy;
-	missile.goalentity = self.enemy;
-	missile.think = soul_precharge4;
-	missile.nextthink = time + .01;
-	
-	total_monsters = total_monsters + 1;
-	update_monsters();
-	
-	if (painelem_InWall(missile.origin)) {
-		missile.th_die();
-	}
 }
 
 // Pain elementals on death
-void(vector offset, float angle) painelem_Release = {
+void(vector offset, float ang) painelem_Deploy_Death = {
 	entity missile;
 	entity oself;
 	
 	//Spawns the monster
 	missile = spawn();
-	setorigin(missile, self.origin + offset);
 	missile.classname = "monster_lostsoul";
-	missile.angles_y = angle;
-	missile.lefty = 1;
-	missile.owner = self;
 
+	// Initialize the Lost Soul
 	oself = self;
 	self = missile;
-	monster_lostsoul_spawn();
-	flymonster_start_go();
-	self.health = 40;
+	soul_spawn_death(oself, offset, ang);
 	self = oself;
-	
-	update_monsters();
-	
-	if (painelem_InWall(missile.origin)) {
-		missile.th_die();
-	}
 }
 
 void() painelem_attacka1 = [ $attacka1, painelem_attacka2 ] {ai_face();eye_position('0 16.741 37.384');painelem_Wind();};
@@ -512,10 +440,10 @@ void()	painelem_death8	= [ $paina3, painelem_death8 ] {
 	painelem_explode(10);
 	remove(self.eye_entity);
 	ThrowHead ("progs/paineye.mdl", -50);
-	painelem_Release('0 35 20',90);
-	painelem_Release('23 -23 40',330);
-	painelem_Release('-23 -23 60',210);
-	painelem_Release('-23 -23 -100',210);
+	painelem_Deploy_Death('0 35 20',90);
+	painelem_Deploy_Death('23 -23 40',330);
+	painelem_Deploy_Death('-23 -23 60',210);
+	painelem_Deploy_Death('-23 -23 -100',210);
 };
 
 //Determine whether it was gibbed instantly, or it should run the death sequence and then gib.

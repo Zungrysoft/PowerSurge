@@ -42,7 +42,6 @@ $frame grow1 grow2 grow3 grow4 grow5 grow6 grow7 grow8 grow9 grow10
 
 void() Soul_Charge_Touch;
 void() Soul_Charge;
-void() Soul_Project;
 void() Soul_Bounce;
 void() Soul_Reel;
 void() Soul_Accelerate;
@@ -79,7 +78,7 @@ void() soul_run5 = [ $hover5, soul_run6 ] {ai_run(1);};
 void() soul_run6 = [ $hover6, soul_run1 ] {ai_run(1);soul_idlesound();};
 
 //Starts by facing the player, then it calls the charge function and loops repeatedly.
-void() soul_precharge1 = [ $hover1, soul_precharge2 ] {ai_face();Soul_Project();};
+void() soul_precharge1 = [ $hover1, soul_precharge2 ] {ai_face();};
 void() soul_precharge2 = [ $hover2, soul_precharge3 ] {ai_face();};
 void() soul_precharge3 = [ $hover3, soul_precharge4 ] {ai_face();};
 void() soul_precharge4 = [ $charge6, soul_charge1 ] {Soul_Charge();};
@@ -310,7 +309,30 @@ void() soul_missile = {
 	soul_precharge1();
 }
 
-void() monster_lostsoul_spawn = {
+// Checks if a lost soul is stuck in a wall
+#define SOUL_CHECK_SUBDIVISIONS 3
+float(vector loc) soul_inwall = {
+	local vector pos;
+	
+	for (float cx = 0; cx <= 1; cx += 1/(SOUL_CHECK_SUBDIVISIONS-1)) {
+		for (float cy = 0; cy <= 1; cy += 1/(SOUL_CHECK_SUBDIVISIONS-1)) {
+			for (float cz = 0; cz <= 1; cz += 1/(SOUL_CHECK_SUBDIVISIONS-1)) {
+				pos = loc;
+				pos_x += (VEC_HULL_MIN_x * cx) + (VEC_HULL_MAX_x * (1-cx));
+				pos_y += (VEC_HULL_MIN_y * cy) + (VEC_HULL_MAX_y * (1-cy));
+				pos_z += (VEC_HULL_MIN_z * cz) + (VEC_HULL_MAX_z * (1-cz));
+				
+				if (pointcontents(pos) == CONTENT_SOLID) {
+					return 1;
+				}
+			}
+		}
+	}
+	return 0;
+}
+
+// Sets the entity keys for the lost soul monster
+void() soul_setdata = {
 	self.solid = SOLID_SLIDEBOX;
 	self.movetype = MOVETYPE_FLY;
 
@@ -326,8 +348,59 @@ void() monster_lostsoul_spawn = {
 	self.th_missile = soul_missile;
 	self.th_pain = soul_pain;
 	self.touch = SUB_Null;
-		
+	
 	flymonster_start ();
+}
+
+// Sets the entity keys for the monster for when it was spawned by a pain elemental
+void(entity source) soul_spawn_setdata = {
+	soul_setdata();
+	
+	if (source.spawnflags & 2) {
+		self.target = source.target;
+		self.alpha = source.alpha;
+	}
+	
+	self.lefty = 1;
+	self.health = 40;
+	flymonster_start_go();
+	
+	update_monsters();
+}
+
+// Sets the entity keys when launched as a projectile
+void(entity source) soul_spawn_launch = {
+	setorigin (self, source.origin + '0 0 30');
+	soul_spawn_setdata(source);
+	self.owner = source;
+	
+	self.angles = source.angles;
+	
+	self.enemy = source.enemy;
+	self.goalentity = source.enemy;
+	self.think = soul_precharge4;
+	self.nextthink = time + .01;
+	
+	// If spawned in a wall, die instantly
+	if (soul_inwall(self.origin)) {
+		killed_monsters ++;
+		update_monsters();
+		self.th_die();
+	}
+}
+
+// Sets the entity keys when released in death explosion
+void(entity source, vector offset, float ang) soul_spawn_death = {
+	soul_spawn_setdata(source);
+	setorigin (self, source.origin + offset);
+	self.angles_y = ang;
+	
+	// If spawned in a wall, die instantly
+	if (soul_inwall(self.origin)) {
+		killed_monsters ++;
+		update_monsters();
+		self.th_die();
+	}
 }
 
 void() monster_lostsoul = {
@@ -345,7 +418,7 @@ void() monster_lostsoul = {
 	precache_sound ("lostsoul/idle2.wav");
 	precache_sound ("lostsoul/pain1.wav");
 	
-	monster_lostsoul_spawn();
+	soul_setdata();
 };
 
 /*
