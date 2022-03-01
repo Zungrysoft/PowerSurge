@@ -834,6 +834,12 @@ void() weapon_touch =
 		new = IT_LIGHTNING;
 		other.ammo_cells = other.ammo_cells + 15;
 	}
+	else if (self.classname == "weapon_iceblade")
+	{
+		if (no_duplicate && (other.items & IT_ICE_BLADE) )
+			return;
+		new = IT_ICE_BLADE;
+	}
 	else
 		objerror ("weapon_touch: unknown classname");
 
@@ -1031,6 +1037,20 @@ void() weapon_lightning =
 	setmodel (self, "progs/g_light.mdl");
 	self.weapon = 3;
 	self.netname = LOC_NETNAME_LIGHTNING;
+	self.touch = weapon_touch;
+	setsize (self, '-16 -16 0', '16 16 56');
+	StartItem ();
+};
+
+// Ice Sword
+void() weapon_iceblade =
+{
+	if (deathmatch)
+		return;
+	
+	precache_model ("progs/end3.mdl");
+	setmodel (self, "progs/end3.mdl");
+	self.netname = LOC_NETNAME_ICE_BLADE;
 	self.touch = weapon_touch;
 	setsize (self, '-16 -16 0', '16 16 56');
 	StartItem ();

@@ -172,6 +172,11 @@ void() player_axed2	=[ $axattd2,	player_axed3	] {self.weaponframe=6;};
 void() player_axed3	=[ $axattd3,	player_axed4	] {self.weaponframe=7;W_FireAxe();};
 void() player_axed4	=[ $axattd4,	player_run		] {self.weaponframe=8;};
 
+void() player_swd1	=[ $axatt1,	player_swd2	] {self.weaponframe=1;};
+void() player_swd2	=[ $axatt2,	player_swd3	] {self.weaponframe=2;};
+void() player_swd3	=[ $axatt3,	player_swd4	] {self.weaponframe=3;W_FireIceBlade();};
+void() player_swd4	=[ $axatt4,	player_run	] {self.weaponframe=4;};
+
 
 //============================================================================
 

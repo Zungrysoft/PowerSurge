@@ -289,7 +289,7 @@ float	IT_SUPER_NAILGUN		= 8;
 float	IT_GRENADE_LAUNCHER		= 16;
 float	IT_ROCKET_LAUNCHER		= 32;
 float	IT_LIGHTNING			= 64;
-float	IT_EXTRA_WEAPON			= 128;
+float	IT_ICE_BLADE			= 128;
 
 float	IT_SHELLS				= 256;
 float	IT_NAILS				= 512;
@@ -753,6 +753,8 @@ float bad_blood;
 
 // Defines mass for resistance to knockback-based attacks
 .float mass;
+
+.entity freeze_ent;
 
 //Additional settings added by LibreQuake, stored in temp1
 

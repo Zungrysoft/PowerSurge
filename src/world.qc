@@ -156,6 +156,9 @@ void() worldspawn =
 
 	precache_model ("progs/v_light.mdl");
 	
+	precache_sound ("ice/freeze.wav");
+	precache_sound ("ice/unfreeze.wav");
+	
 	if (domination())
 	{
 		precache_sound ("misc/runekey.wav");

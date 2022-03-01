@@ -102,6 +102,51 @@ void() W_FireAxe =
 	}
 };
 
+/*
+================
+W_FireAxe
+================
+*/
+void() W_FireIceBlade =
+{
+	local	vector	source;
+	local	vector	org;
+
+	makevectors (self.v_angle);
+	source = self.origin + '0 0 22';
+	traceline (source, source + v_forward*76, FALSE, self);
+	if (trace_fraction == 1.0)
+		return;
+	
+	org = trace_endpos - v_forward*4;
+
+	if (trace_ent.takedamage)
+	{
+		FreezeMonster(trace_ent);
+	}
+	else
+	{
+		// Check to see if it's a frozen monster
+		if (trace_ent.freeze_ent) {
+			UnfreezeMonster(trace_ent);
+		}
+		else {
+			sound (self, CHAN_WEAPON, "player/axhit2.wav", 1, ATTN_NORM);
+
+			WriteByte (MSG_BROADCAST, SVC_TEMPENTITY);
+			WriteByte (MSG_BROADCAST, TE_GUNSHOT);
+#ifdef qw
+//QuakeWorld only
+			WriteByte (MSG_BROADCAST, 3);
+#endif
+			WriteCoord (MSG_BROADCAST, org_x);
+			WriteCoord (MSG_BROADCAST, org_y);
+			WriteCoord (MSG_BROADCAST, org_z);
+			multicast (org, MULTICAST_PVS);
+		}
+	}
+};
+
 
 //============================================================================
 
@@ -1110,6 +1155,12 @@ void() W_SetCurrentAmmo =
 		self.weaponframe = 0;
 		self.items = self.items | IT_CELLS;
 	}
+	else if (self.weapon == IT_ICE_BLADE)
+	{
+		self.currentammo = 0;
+		self.weaponmodel = "";
+		self.weaponframe = 0;
+	}
 	else
 	{
 		self.currentammo = 0;
@@ -1148,6 +1199,9 @@ float() W_CheckNoAmmo =
 	if (self.weapon == IT_AXE)
 		return TRUE;
 	
+	if (self.weapon == IT_ICE_BLADE)
+		return TRUE;
+	
 	self.weapon = W_BestWeapon ();
 
 	W_SetCurrentAmmo ();
@@ -1167,6 +1221,7 @@ void()	player_axe1;
 void()	player_axeb1;
 void()	player_axec1;
 void()	player_axed1;
+void()	player_swd1;
 void()	player_shot1;
 void()	player_nail1;
 void()	player_light1;
@@ -1195,6 +1250,12 @@ void() W_Attack =
 		else
 			player_axed1 ();
 		
+		self.attack_finished = time + 0.5;
+	}
+	else if (self.weapon == IT_ICE_BLADE)
+	{
+		sound (self, CHAN_WEAPON, "weapons/ax1.wav", 1, ATTN_NORM);
+		player_swd1 ();
 		self.attack_finished = time + 0.5;
 	}
 	else if (self.weapon == IT_SHOTGUN)
@@ -1296,7 +1357,12 @@ void() W_ChangeWeapon =
 	
 	if (self.impulse == 1)
 	{
-		fl = IT_AXE;
+		if ((self.items & IT_ICE_BLADE) && self.weapon != IT_ICE_BLADE) {
+			fl = IT_ICE_BLADE;
+		}
+		else {
+			fl = IT_AXE;
+		}
 	}
 	else if (self.impulse == 2)
 	{
@@ -1393,6 +1459,7 @@ void() CheatCommand =
 		IT_GRENADE_LAUNCHER |
 		IT_ROCKET_LAUNCHER |
 		IT_LIGHTNING |
+		IT_ICE_BLADE |
 		IT_KEY1 | IT_KEY2;
 
 	self.weapon = IT_ROCKET_LAUNCHER;
@@ -1422,6 +1489,10 @@ void() CycleWeaponCommand =
 		am = 0;
 
 		if (self.weapon == IT_LIGHTNING)
+		{
+			self.weapon = IT_ICE_BLADE;
+		}
+		else if (self.weapon == IT_ICE_BLADE)
 		{
 			self.weapon = IT_AXE;
 		}
@@ -1537,11 +1608,14 @@ void() CycleWeaponReverseCommand =
 		}
 		else if (self.weapon == IT_AXE)
 		{
+			self.weapon = IT_ICE_BLADE;
+		}
+		else if (self.weapon == IT_ICE_BLADE)
+		{
 			self.weapon = IT_LIGHTNING;
 			if (self.ammo_cells < 1)
 				am = 1;
 		}
-	
 		if ( (it & self.weapon) && am == 0)
 		{
 			W_SetCurrentAmmo ();

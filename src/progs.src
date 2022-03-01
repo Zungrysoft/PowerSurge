@@ -11,6 +11,7 @@ ai.qc
 combat.qc
 items.qc
 flags.qc
+freeze.qc
 weapons.qc
 world.qc
 client.qc
