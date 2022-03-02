@@ -216,6 +216,20 @@ void() Soul_Charge = {
 			hop -= '0 -110 0';
 		}
 	}
+	if (!hop) {
+		if (pointcontents(self.origin + '40 40 0') == CONTENT_SOLID) {
+			hop -= '78 78 0';
+		}
+		if (pointcontents(self.origin + '-40 -40 0') == CONTENT_SOLID) {
+			hop -= '-78 -78 0';
+		}
+		if (pointcontents(self.origin + '-40 40 0') == CONTENT_SOLID) {
+			hop -= '-78 78 0';
+		}
+		if (pointcontents(self.origin + '40 -40 0') == CONTENT_SOLID) {
+			hop -= '78 -78 0';
+		}
+	}
 	
 	if (hop) {
 		Soul_Hop(hop);

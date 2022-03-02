@@ -443,7 +443,6 @@ void()	painelem_death8	= [ $paina3, painelem_death8 ] {
 	painelem_Deploy_Death('0 35 20',90);
 	painelem_Deploy_Death('23 -23 40',330);
 	painelem_Deploy_Death('-23 -23 60',210);
-	painelem_Deploy_Death('-23 -23 -100',210);
 };
 
 //Determine whether it was gibbed instantly, or it should run the death sequence and then gib.
