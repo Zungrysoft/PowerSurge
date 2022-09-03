@@ -108,6 +108,11 @@ void(entity targ, entity inflictor, entity attacker, float damage) T_Damage =
 	local	float	save;
 	local	float	take;
 	
+	// Propogate damage from Walker to the walker itself
+	if (attacker.classname == "walker_grenade") {
+		attacker = attacker.owner;
+	}
+	
 	//Damage is the damage that is being dealt.
 	//Take is the amount of that damage that will actually be dealt to the health bar
 
@@ -153,15 +158,23 @@ void(entity targ, entity inflictor, entity attacker, float damage) T_Damage =
 	}
 	
 // figure momentum add
-	if ( (inflictor != world) && (targ.movetype == MOVETYPE_WALK) )
-	{
+	if (inflictor != world) {
+		if (targ.movetype == MOVETYPE_WALK) {
+			dir = targ.origin - (inflictor.absmin + inflictor.absmax) * 0.5;
+			dir = normalize(dir);
+			if (arenamode())
+				targ.velocity = targ.velocity + dir*damage*12;
+			else
+				targ.velocity = targ.velocity + dir*damage*8;
+		}
+		// This should really be in the ball's th_pain function, but I didn't feel
+		// like rewriting all of its implementations to include inflictor's location
+		/*if (targ.classname == "walker_grenade") {
+			dir = targ.origin - (inflictor.absmin + inflictor.absmax) * 0.5;
+			dir = normalize(dir);
+			targ.velocity = targ.velocity + dir*damage*6;
+		}*/
 		
-		dir = targ.origin - (inflictor.absmin + inflictor.absmax) * 0.5;
-		dir = normalize(dir);
-		if (arenamode())
-			targ.velocity = targ.velocity + dir*damage*12;
-		else
-			targ.velocity = targ.velocity + dir*damage*8;
 	}
 
 // check for godmode or invincibility

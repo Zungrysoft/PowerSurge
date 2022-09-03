@@ -148,16 +148,14 @@ void(float dist) ai_devil_run = {
 Grenade Stuff
 =============
 */
-void() DevilGrenadeThink =
-{
+void() DevilGrenadeThink = {
 	self.nextthink = time + 0.05 + (random() * 0.1);
 	self.think = DevilGrenadeThink;
 	
 	self.frame = (self.frame + 1) % 5;
 };
 
-void() DevilGrenadeExplode =
-{
+void() DevilGrenadeExplode = {
 	T_RadiusDamage (self, self.owner, DEVIL_GRENADE_DAMAGE, world, "");
 
 	WriteByte (MSG_BROADCAST, SVC_TEMPENTITY);
@@ -174,8 +172,7 @@ void() DevilGrenadeExplode =
 	s_explode1 ();
 };
 
-void() DevilGrenadeTouch =
-{
+void() DevilGrenadeTouch = {
 	// Devil grenades explode on contact with just about anything
 	
 	if (other == self.owner)
@@ -183,7 +180,8 @@ void() DevilGrenadeTouch =
 	
 	if (other.solid == SOLID_TRIGGER)
 		return;	// trigger field, do nothing
-
+	
+	// Disappear on contact with sky
 	if (pointcontents(self.origin) == CONTENT_SKY)
 	{
 		remove(self);
@@ -338,8 +336,7 @@ float() DevilSimulateThrow = {
 	return -1;
 }
 
-void() DevilFireGrenade =
-{
+void() DevilFireGrenade = {
 	local entity missile;
 	local float v_vertical;
 	local float v_horizontal;
@@ -589,8 +586,7 @@ void() devil_painc15	=[ $painc15,	devil_painc16	] {ai_back(-2);};
 void() devil_painc16	=[ $painc16,	devil_run1		] {ai_back(-4);};
 
 
-void(entity attacker, float damage)	devil_pain =
-{
+void(entity attacker, float damage)	devil_pain = {
 	local float	r;
 
 // don't make multiple pain sounds right after each other
@@ -638,8 +634,7 @@ void() devil_death8		=[ $death8,		devil_death9	] {};
 void() devil_death9		=[ $death9,		devil_death10	] {};
 void() devil_death10	=[ $death10,	devil_death10	] {};
 
-void() devil_die =
-{
+void() devil_die = {
 // check for gib
 	if (self.health < -80)
 	{
@@ -659,16 +654,14 @@ void() devil_die =
 		devil_death1 ();
 };
 
-void() devil_melee =
-{
+void() devil_melee = {
 	if (random() < 0.66)
 		devil_rama1 ();
 	else
 		devil_ramb1 ();
 };
 
-float() DevilCheckAttack =
-{
+float() DevilCheckAttack = {
 	local float		chance;
 	local float		sim_result;
 	
@@ -714,8 +707,7 @@ float() DevilCheckAttack =
 };
 
 
-void() monster_devil =
-{
+void() monster_devil = {
 	if (deathmatch)
 	{
 		remove(self);

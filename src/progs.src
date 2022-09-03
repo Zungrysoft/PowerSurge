@@ -40,6 +40,7 @@ shalrath.qc		// registered
 enforcer.qc		// registered
 oldone.qc		// registered
 
-lostsoul.qc
-painelem.qc
+lostsoul.qc		// modded
+painelem.qc		// modded
 devil.qc		// modded
+walker.qc		// modded

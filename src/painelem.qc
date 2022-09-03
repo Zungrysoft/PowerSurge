@@ -418,8 +418,6 @@ void(float c) painelem_explode = {
 		origin_point_z += (random() * EXPLOSION_VERTICAL) + EXPLOSION_VERTICAL_OFFSET;
 		
 		setorigin(exp, origin_point);
-		
-		// Sound effect
 	}
 }
 

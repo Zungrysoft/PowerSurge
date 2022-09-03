@@ -636,6 +636,7 @@ float()	DogCheckAttack;
 float()	SoulCheckAttack;
 float()	PainelemCheckAttack;
 float()	DevilCheckAttack;
+float()	WalkerCheckAttack;
 
 float() CheckAnyAttack =
 {
@@ -647,6 +648,8 @@ float() CheckAnyAttack =
 		return OgreCheckAttack ();
 	if (self.classname == "monster_devil")
 		return DevilCheckAttack ();
+	if (self.classname == "monster_walker")
+		return WalkerCheckAttack ();
 	if (self.classname == "monster_shambler")
 		return ShamCheckAttack ();
 	if (self.classname == "monster_demon1")
