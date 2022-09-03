@@ -4,7 +4,7 @@
 ========
 Features
 ========
-- 5 brand new monsters! You'll have to face the Gunner, the Lost Soul, the Pain Elemental, the Devil, and the Thundergolem!
+- Five brand new monsters! You'll have to face the Gunner, the Lost Soul, the Pain Elemental, the Devil, and the Photon Goliath!
 - Tough choices about your arsenal. You can't take your weapons for granted anymore...
 - Meltdown difficulty. Like Hard but with even more monsters and slightly longer levels. This will challenge even Quake veterans!
 
