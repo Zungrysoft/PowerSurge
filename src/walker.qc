@@ -7,6 +7,9 @@ Walker
 // Balancing Parameters
 #define WALKER_PAIN_THRESHOLD 200
 #define WALKER_GRENADE_DAMAGE 30
+#define WALKER_MELEE_ANGLE 85
+
+#define melee_direction count
 
 $frame stand1 stand2 stand3 stand4 stand5 stand6 stand7 stand8 stand9 stand10
 $frame stand11 stand12 stand13 stand14 stand15 stand16 stand17 stand18 stand19
@@ -79,7 +82,7 @@ void() WalkerGrenadeThink = {
 	self.think = WalkerGrenadeThink;
 	
 	// Shoot the player
-	if (time - self.count > 0.2) {
+	if (time - self.count > 0.2 && self.enemy.health > 0) {
 		LaunchWalkerPlasma(self.origin, self.enemy.origin - self.origin);
 	}
 	
@@ -104,7 +107,7 @@ void() WalkerGrenadeTouch = {
 		if (pointcontents(self.origin + '0 0 -17') == CONTENT_SOLID) {
 			self.velocity_z = -700;
 		}
-		// Break if it hit anything else
+		// Break if it hit a wall or ceiling
 		else {
 			WalkerGrenadeExplode();
 		}
@@ -120,6 +123,7 @@ void() WalkerGrenadeTouch = {
 	
 	// Explode on contact with players
 	if (other.takedamage == DAMAGE_AIM) {
+		T_Damage(other, self, self.owner, 30);
 		WalkerGrenadeExplode();
 		return;
 	}
@@ -133,7 +137,7 @@ void() WalkerGrenadeTouch = {
 
 void() WalkerFireGrenade = {
 	local entity missile;
-	
+	local vector ang;
 	local vector shoot_spot;
 	
 	// Determine where the dynamite source and destination
@@ -156,6 +160,12 @@ void() WalkerFireGrenade = {
 	// Calculate velocity
 	missile.velocity = self.enemy.origin - self.origin;
 	missile.velocity_z = 0;
+	if (self.enemy.classname != "player") {
+		ang = vectoangles(missile.velocity);
+		ang_y += WALKER_MELEE_ANGLE * self.melee_direction;
+		makevectors(ang);
+		missile.velocity = v_forward;
+	}
 	missile.velocity = normalize(missile.velocity);
 	missile.velocity = missile.velocity * 300;
 	missile.velocity_z = 200;
@@ -176,6 +186,15 @@ void() WalkerFireGrenade = {
 };
 
 //=============================================================================
+
+void() ai_face_walker = {
+	if (self.enemy.classname != "player") {
+		ai_face_side(WALKER_MELEE_ANGLE * self.melee_direction);
+	}
+	else {
+		ai_face();
+	}
+}
 
 void() WalkerIdle = {
 	// TODO: Idle Creaking Sounds
@@ -240,11 +259,11 @@ void() walker_run16		=[ $walk16,	walker_run17	] {ai_run(0);};
 void() walker_run17		=[ $walk17,	walker_run18	] {ai_run(0);};
 void() walker_run18		=[ $walk18,	walker_run1		] {ai_run(0);};
 
-void() walker_shoot1	=[ $shoot1,	walker_shoot2	] {ai_face();};
-void() walker_shoot2	=[ $shoot2,	walker_shoot3	] {ai_face();};
-void() walker_shoot3	=[ $shoot3,	walker_shoot4	] {ai_face();};
-void() walker_shoot4	=[ $shoot4,	walker_shoot5	] {ai_face();self.nextthink=time+0.05;};
-void() walker_shoot5	=[ $shoot5,	walker_shoot6	] {WalkerFireGrenade();self.nextthink=time+0.05;};
+void() walker_shoot1	=[ $shoot1,	walker_shoot2	] {ai_face_walker();};
+void() walker_shoot2	=[ $shoot2,	walker_shoot3	] {ai_face_walker();};
+void() walker_shoot3	=[ $shoot3,	walker_shoot4	] {ai_face_walker();};
+void() walker_shoot4	=[ $shoot4,	walker_shoot5	] {ai_face_walker();self.nextthink=time+0.05;};
+void() walker_shoot5	=[ $shoot5,	walker_shoot6	] {ai_face_walker();WalkerFireGrenade();self.nextthink=time+0.05;};
 void() walker_shoot6	=[ $shoot6,	walker_shoot7	] {};
 void() walker_shoot7	=[ $shoot7,	walker_shoot8	] {};
 void() walker_shoot8	=[ $shoot8,	walker_shoot9	] {};
@@ -339,6 +358,10 @@ float() WalkerCheckAttack = {
 
 	self.attack_state = AS_MISSILE;
 	SUB_AttackFinished (3 + 2*random());
+	self.melee_direction = 1;
+	if (random() < 0.5) {
+		self.melee_direction = -1;
+	}
 	return TRUE;
 };
 

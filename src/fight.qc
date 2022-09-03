@@ -143,6 +143,12 @@ void() ai_face =
 	ChangeYaw ();
 };
 
+void(float ang) ai_face_side =
+{
+	self.ideal_yaw = vectoyaw(self.enemy.origin - self.origin) + ang;
+	ChangeYaw ();
+};
+
 /*
 =============
 ai_charge
