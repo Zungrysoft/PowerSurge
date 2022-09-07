@@ -397,7 +397,7 @@ void() monster_walker = {
 
 	setsize (self, VEC_HULL2_MIN, VEC_HULL2_MAX);
 	self.health = 1000;
-	self.mass = 1.8;
+	self.mass = 3.5;
 
 	self.th_stand = walker_stand1;
 	self.th_walk = walker_walk1;
